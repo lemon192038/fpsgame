@@ -35,3 +35,8 @@ Menu > top row: 日本語 / 中文 / English (saved in the browser; defaults to 
 ## v4
 - Movement stick is now a floating stick: touch anywhere in the lower-left 35% x 72% of the screen. CROUCH moved next to JUMP.
 - Secondary slot also offers melee: 4 knives and 2 knuckle weapons (backstab from behind = 4x damage, reach 2.4 m, no ammo).
+
+## v5
+- Magazines reduced across the board (sniper 2-4, revolver 3-6, DMR 6-10, shotgun 4-6, AR 18-24, SMG 20-30, LMG 40-60, ...).
+- Remaining ammo is shown as cartridge icons under the weapon name (shotgun = shells, melee = none).
+- Safari zoom prevention: viewport max-scale, gesture/double-tap/multi-touch guards.
