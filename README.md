@@ -40,3 +40,4 @@ Menu > top row: 日本語 / 中文 / English (saved in the browser; defaults to 
 - Magazines reduced across the board (sniper 2-4, revolver 3-6, DMR 6-10, shotgun 4-6, AR 18-24, SMG 20-30, LMG 40-60, ...).
 - Remaining ammo is shown as cartridge icons under the weapon name (shotgun = shells, melee = none).
 - Safari zoom prevention: viewport max-scale, gesture/double-tap/multi-touch guards.
+
