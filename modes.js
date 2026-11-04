@@ -2,8 +2,8 @@
 // [reaction s, fire interval s, base accuracy, damage, speed, aware range]
 const LV={'Very Easy':[1.2,1,.35,6,2.8,38],'Easy':[.6,.6,.62,9,3.8,52],'Normal':[.35,.4,.76,10,4.3,65],'Hard':[.25,.3,.84,11,4.7,72],
 'Expert':[.18,.22,.9,12,5.1,80],'Master':[.12,.16,.94,13,5.5,95],'Pro':[.08,.1,.97,14,5.9,110],'Cheater':[.05,.07,.99,16,6.4,140]};
-window.MV=7;
-const MODES=[['1v1','1v1'],['5v5','5v5'],['ffa','1v1v1v1v1'],['wave','WAVE']],HUE=[.6,0,.1,.33,.8];
+window.MV=9;
+const MODES=[['1v1','1v1'],['5v5','5v5'],['ffa','1v1v1v1v1'],['ko1','KNOCKOUT 1v1'],['ko5','KNOCKOUT 5v5'],['wave','WAVE']],HUE=[.6,0,.1,.33,.8];
 const Modes={mode:'1v1',lv:'Normal',stats:{k:0,d:0,m:0},wave:1,
  get D(){const a=LV[this.lv];return{react:a[0],fi:a[1],acc:a[2],dmg:a[3],spd:a[4],aware:a[5]}},
  menu(){P.on=false;Net.leave();$('msg').style.display='none';$('menu').style.display='flex';ui()},
@@ -12,8 +12,8 @@ const Modes={mode:'1v1',lv:'Normal',stats:{k:0,d:0,m:0},wave:1,
   Object.assign(P,{hp:100,ammo:Wp.cur.mag,kills:0,dead:false,rel:0,vy:0,wave:1});this.wave=1;
   if(Net.on)P.pos.set((rnd()-.5)*60,1.7,(rnd()-.5)*60);
   else{const m=this.mode,at=(t,n,z)=>{for(let i=0;i<n;i++)Bots.mk(t,(i-(n-1)/2)*8,z)};this.stats.m++;Auth.save();
-   if(m=='1v1'){P.pos.set(0,1.7,36);at(1,1,-36)}
-   else if(m=='5v5'){P.pos.set(0,1.7,36);at(0,4,38);at(1,5,-36)}
+   if(m=='1v1'||m=='ko1'){P.pos.set(0,1.7,36);at(1,1,-36)}
+   else if(m=='5v5'||m=='ko5'){P.pos.set(0,1.7,36);at(0,4,38);at(1,5,-36)}
    else if(m=='ffa'){P.pos.set(0,1.7,36);[[-34,-34],[34,-34],[-34,0],[34,0]].forEach((p,i)=>Bots.mk(i+1,p[0],p[1]))}
    else{P.pos.set(0,1.7,20);Bots.horde()}}
   P.yaw=0;P.pitch=0;$('msg').style.display='none';$('menu').style.display='none';P.on=true}};
@@ -26,7 +26,7 @@ const Bots={
   const parts=[body,head,helm,legs];parts.forEach(m=>{m.castShadow=true;m.userData.e=e;e.add(m)});
   e.position.set(x,0,z);e.userData={hp:100,team,cd:Modes.D.react+rnd(),off:rnd()*9,dead:0,flash:0,parts,remote:rid,name};{const li=Object.keys(LV).indexOf(Modes.lv),pw=WP.filter(w=>w.slot=='P'&&!(li<2&&(w.code=='SN'||w.code=='LM'))),sw=WP.filter(w=>w.slot=='S');e.userData.p=pw[(rnd()*pw.length)|0];e.userData.s=sw[(rnd()*sw.length)|0]}
   if(name){const c=document.createElement('canvas');c.width=256;c.height=48;const g=c.getContext('2d');g.font='bold 32px sans-serif';g.textAlign='center';g.fillStyle='#fff';g.strokeStyle='#000';g.lineWidth=5;g.strokeText(name,128,36);g.fillText(name,128,36);
-   const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),depthTest:false,fog:false}));sp.scale.set(1.6,.3,1);sp.position.y=2.3;e.add(sp)}
+   const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),depthTest:true,fog:false}));sp.scale.set(1.6,.3,1);sp.position.y=2.3;e.add(sp)}
   S.add(e);enemies.push(e);return e},
  horde(){for(let i=0;i<2+Modes.wave*2;i++){const a=rnd()*6.28;Bots.mk(1,Math.cos(a)*38,Math.sin(a)*38)}},
  banner(){const k=$('kill');k.classList.remove('show');void k.offsetWidth;k.classList.add('show');snd(700,.25,.2,'triangle')},
@@ -58,12 +58,12 @@ const Bots={
    let hits=0;for(let k=0;k<sh*wp.pel;k++)if(rnd()<Math.min(.99,pg))hits++;
    if(hits>0){const dmg=hits*wp.dmg*mul;if(t===P)hurt(dmg,'cpu');else{t.userData.hp-=dmg*2.5;t.userData.flash=.1;if(t.userData.hp<=0)Bots.kill(t,0)}}}
   if(Net.on||!P.on)return;
-  if(!live.some(o=>o.userData.team!==0)){if(Modes.mode=='wave'){Modes.wave++;P.wave=Modes.wave;enemies.forEach(e=>S.remove(e));enemies.length=0;Bots.horde()}else Modes.end('VICTORY')}}};
+  Rules.check(live);}};
 const _hurt=hurt;
 hurt=function(n,by){if(!Net.on){const was=P.dead;_hurt(n);if(!was&&P.dead){Modes.stats.d++;Auth.save()}return}
  if(P.dead)return;P.hp-=n;P.last=performance.now();$('dmg').style.opacity=1;setTimeout(()=>$('dmg').style.opacity=0,120);snd(90,.2,.3,'square');
- if(P.hp<=0){P.dead=true;P.on=false;Net.send('down',{id:Auth.id,by});Match.kill(by,Auth.id);Modes.stats.d++;Auth.save();$('msg').style.display='flex';$('msg').innerHTML='<h1>ELIMINATED</h1><p>Respawning…</p>';
-  setTimeout(()=>{if(!Net.on||Match.over)return;P.hp=100;P.ammo=Wp.cur.mag;P.dead=false;P.pos.set((rnd()-.5)*60,1.7,(rnd()-.5)*60);$('msg').style.display='none';P.on=true},3000)}};
+ if(P.hp<=0){P.dead=true;P.on=false;Net.send('down',{id:Auth.id,by});Match.kill(by,Auth.id);Modes.stats.d++;Auth.save();$('msg').style.display='flex';$('msg').innerHTML='<h1>ELIMINATED</h1><p>'+(Match.ko()?'Wait for the round to end':'Respawning…')+'</p>';
+  setTimeout(()=>{if(!Net.on||Match.over||Match.ko())return;P.hp=100;P.ammo=Wp.cur.mag;P.dead=false;P.pos.set((rnd()-.5)*60,1.7,(rnd()-.5)*60);$('msg').style.display='none';P.on=true},3000)}};
 const Auth={id:localStorage.gid||(localStorage.gid=crypto.randomUUID()),name:'Guest'+(1000+Math.floor(Math.random()*9000)),user:null,sb:null,
  async init(){const c=window.CONFIG||{};if(c.SUPABASE_URL&&c.SUPABASE_ANON_KEY&&window.supabase){this.sb=supabase.createClient(c.SUPABASE_URL,c.SUPABASE_ANON_KEY);
   const{data}=await this.sb.auth.getSession();this.set(data.session);this.sb.auth.onAuthStateChange((_,s)=>this.set(s))}ui()},
@@ -82,7 +82,7 @@ const Net={on:false,ch:null,peers:{},
   .subscribe(s=>{if(s==='SUBSCRIBED'){ch.track({name:Auth.name});Net.on=true;Modes.again()}})},
  leave(){if(!this.ch)return;this.ch.unsubscribe();this.ch=null;this.on=false;Object.values(this.peers).forEach(e=>{S.remove(e);enemies.splice(enemies.indexOf(e),1)});this.peers={}},
  send(ev,payload){this.ch&&this.ch.send({type:'broadcast',event:ev,payload})},hit(to,dmg){this.send('hit',{to,dmg,by:Auth.id})}};
-setInterval(()=>{if(Net.on&&P.on)Net.send('pose',{id:Auth.id,name:Auth.name,x:P.pos.x,z:P.pos.z,y:P.yaw+Math.PI,h:P.pos.y-1.7,c:Mv.crouch||Mv.sl>0?1:0})},100);
+setInterval(()=>{if(Net.on&&P.on&&!P.dead)Net.send('pose',{id:Auth.id,name:Auth.name,x:P.pos.x,z:P.pos.z,y:P.yaw+Math.PI,h:P.pos.y-1.7,c:Mv.crouch||Mv.sl>0?1:0})},100);
 function ui(){const s=Modes.stats,a=$('acct');
  a.innerHTML=Auth.user?'Signed in: <b>'+Auth.name+'</b> · '+s.k+' kills / '+s.d+' deaths · '+s.m+' matches <span class="opt" id="lo">Sign out</span>':
   'Playing as <b>'+Auth.name+'</b> (guest) '+(Auth.sb?'<span class="opt" id="li">Sign in with Google</span>':'· Supabase not configured (see README)');

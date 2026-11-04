@@ -77,7 +77,7 @@ const ptr={};const el=$('ui');
 function bind(id,dn,up){const b=$(id);b.addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault();b.setPointerCapture(e.pointerId);b.classList.add('on');dn()});
  const u=e=>{b.classList.remove('on');up&&up()};b.addEventListener('pointerup',u);b.addEventListener('pointercancel',u)}
 bind('fire',()=>held.fire=true,()=>held.fire=false);bind('ads',()=>held.ads=!held.ads);bind('rel',()=>reload());bind('jump',()=>{if(P.vy===0)P.vy=5.2});
-window.BUILD=8;const js=$('jz')||$('joy'),jv=$('joy');let jid=null,jc;
+window.BUILD=9;const js=$('jz')||$('joy'),jv=$('joy');let jid=null,jc;
 js.addEventListener('pointerdown',e=>{e.stopPropagation();jid=e.pointerId;js.setPointerCapture(jid);jc=[e.clientX,e.clientY];jv.style.left=(e.clientX-70)+'px';jv.style.top=(e.clientY-70)+'px';jv.style.bottom='auto';jv.classList.add('on');jm(e)});
 function jm(e){let dx=(e.clientX-jc[0])/55,dy=(e.clientY-jc[1])/55;const l=Math.hypot(dx,dy);if(l>1){dx/=l;dy/=l}joy.x=dx;joy.y=dy;$('knob').style.transform=`translate(${dx*40}px,${dy*40}px)`}
 js.addEventListener('pointermove',e=>{if(e.pointerId==jid)jm(e)});
@@ -106,6 +106,6 @@ function tick(now){requestAnimationFrame(tick);const dt=Math.min((now-T)/1000,.0
  gun.position.lerpVectors(hip,adsP,P.ads);gun.position.z+=P.recoil*.06+(P.rel>0?.05:0);gun.position.y+=Math.sin(P.bob*.5)*.006*(1-P.ads)-(P.rel>0?.12:0);gun.rotation.x=P.recoil*.05+(P.rel>0?-.5:0);
  Dmg.update(dt);World.update(dt);Wp.update();Mv.update(dt);
  for(let i=tracers.length-1;i>=0;i--){const t=tracers[i];t.t-=dt;if(t.l.material.opacity!==undefined&&t.l.isLine)t.l.material.opacity=Math.max(0,t.t*12);if(t.t<=0){S.remove(t.l);t.l.geometry.dispose();tracers.splice(i,1)}}
- $('score').textContent=Match.on?Match.txt():'WAVE '+P.wave+' · '+P.kills+' KILLS';$('hpf').style.width=Math.max(0,P.hp)+'%';$('hpf').style.background=P.hp<35?'#e05050':'#7bd88f';
+ $('score').textContent=Match.on?Match.txt():KO.on()?KO.txt():'WAVE '+P.wave+' · '+P.kills+' KILLS';$('hpf').style.width=Math.max(0,P.hp)+'%';$('hpf').style.background=P.hp<35?'#e05050':'#7bd88f';
  $('ammo').textContent=P.rel>0?'RELOADING':Wp.cur.melee?'∞':P.ammo+' / ∞';R.render(S,cam)}
 requestAnimationFrame(tick);
