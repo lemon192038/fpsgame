@@ -1,0 +1,21 @@
+// Language switch (ja / zh / en). Translates UI text nodes in place via a phrase table, so every menu, button and message follows the selected language.
+const TR=[['Playing as','プレイヤー:','当前身份:'],['(guest)','(ゲスト)','(访客)'],['Supabase not configured (see README)','Supabase未設定(READMEを参照)','未配置Supabase(见README)'],
+['Sign in with Google','Googleでログイン','使用Google登录'],['Signed in:','ログイン中:','已登录:'],['Sign out','ログアウト','退出登录'],['kills','キル','击杀'],['deaths','デス','死亡'],['matches','試合','场次'],['KILLS','キル','击杀'],
+['PLAY vs CPU','CPUと対戦','对战电脑'],['PLAY ONLINE','オンライン対戦','在线对战'],['QUICK MATCH','クイックマッチ','快速匹配'],['CONTROLS','操作方法','操作方式'],['TOUCH','タッチ','触屏'],['KEYBOARD + MOUSE','キーボード+マウス','键盘+鼠标'],
+['structure types','種類の建造物','种建筑'],['RANDOM LOADOUT','ランダム装備','随机装备'],['RANDOM','ランダム','随机'],['PRIMARY','メイン','主武器'],['SECONDARY','サブ','副武器'],['dmg','ダメージ','伤害'],['rpm','発/分','发/分'],
+['1v1v1v1v1','個人戦5人','5人混战'],['WAVE','ウェーブ','波次'],['Very Easy','とても簡単','非常简单'],['Easy','簡単','简单'],['Normal','普通','普通'],['Hard','難しい','困难'],['Expert','エキスパート','专家'],['Master','マスター','大师'],['Pro','プロ','职业'],['Cheater','チーター','作弊者'],
+['Beach','ビーチ','海滩'],['Desert','砂漠','沙漠'],['Forest','森','森林'],['Suburb','郊外','郊区'],['Downtown','繁華街','市中心'],['Industrial','工業地帯','工业区'],['Snow','雪原','雪地'],['Ruins','廃墟','废墟'],['Harbor','港','港口'],['Highrise','高層街','高楼区'],
+['RELOADING','リロード中','换弹中'],['RELOAD','リロード','换弹'],['FIRE','撃つ','开火'],['AIM','ADS','瞄准'],['JUMP','ジャンプ','跳跃'],['CROUCH','しゃがむ','蹲下'],['SWAP','持替','切换'],['MENU','メニュー','菜单'],['YOU','自分','我方'],['ENEMY','敵','敌方'],
+['DOWN','ダウン','倒下'],['reached wave','到達ウェーブ:','到达波次:'],['Tap to redeploy','タップして再出撃','点击重新出击'],['VICTORY','勝利','胜利'],['DEFEAT','敗北','失败'],['ELIMINATED','撃破された','被击败'],['Respawning…','復活中…','复活中…'],
+['Tap to play again','タップしてもう一度','点击再玩一次'],['Tap to return to menu','タップしてメニューへ','点击返回菜单'],['SEARCHING…','検索中…','匹配中…'],['players','人','名玩家'],['random map','ランダムマップ','随机地图'],['Tap to cancel','タップでキャンセル','点击取消'],
+['CPU ONLY','CPU専用','仅限电脑'],['WAVE is single-player. Pick 1v1, 5v5 or 1v1v1v1v1.','ウェーブは1人用です。1v1・5v5・個人戦5人から選んでください。','波次模式仅限单人。请选择1v1、5v5或5人混战。'],['Tap to go back','タップで戻る','点击返回'],['Tap to deploy','タップして出撃','点击出击']];
+let LANG=localStorage.lang||(/^ja/.test(navigator.language)?'ja':/^zh/.test(navigator.language)?'zh':'en');
+const esc=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),RX=TR.slice().sort((a,b)=>b[0].length-a[0].length).map(r=>[new RegExp('(^|[^A-Za-z])'+esc(r[0])+'(?![A-Za-z])','g'),r[1],r[2]]),ORIG=new WeakMap();
+function conv(s){if(LANG=='en')return s;const k=LANG=='ja'?1:2;for(const r of RX)s=s.replace(r[0],(m,p)=>p+r[k]);return s}
+function trNode(n){let o=ORIG.get(n);if(!o||n.nodeValue!==o.t){o={s:n.nodeValue,t:n.nodeValue};ORIG.set(n,o)}const t=conv(o.s);if(t!==n.nodeValue)n.nodeValue=t;o.t=n.nodeValue}
+function walk(root){const w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT);while(w.nextNode())trNode(w.currentNode)}
+new MutationObserver(ms=>{for(const m of ms){if(m.type=='characterData')trNode(m.target);else m.addedNodes.forEach(n=>n.nodeType==3?trNode(n):n.nodeType==1&&walk(n))}}).observe($('ui'),{childList:true,subtree:true,characterData:true});
+function setLang(l){LANG=l;localStorage.lang=l;document.documentElement.lang=l;walk($('ui'));ui()}
+const _ui3=ui;ui=function(){_ui3();$('langr').innerHTML=[['ja','日本語'],['zh','中文'],['en','English']].map(l=>'<div class="opt '+(LANG==l[0]?'sel':'')+'" data-l="'+l[0]+'">'+l[1]+'</div>').join('');
+ $('langr').querySelectorAll('.opt').forEach(o=>o.onclick=()=>setLang(o.dataset.l))};
+document.documentElement.lang=LANG;ui();walk($('ui'));

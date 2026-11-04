@@ -28,3 +28,6 @@ Online play uses Supabase Realtime broadcast with client-trusted hits (no server
 - Crouch (C / CROUCH), slide (crouch while sprinting), sprint (Shift / push stick to the edge).
 - Weather: rain, storms with lightning, snow. New structures: container blocks, container ramp stacks, overpasses, water towers.
 - QUICK MATCH: pick 1v1 (2 players), 5v5 (10) or 1v1v1v1v1 (5); the match starts when enough players are waiting; the map is random.
+
+## Languages
+Menu > top row: 日本語 / 中文 / English (saved in the browser; defaults to the browser language). UI text is translated through the phrase table in `i18n.js`; add a row there to translate new text.
