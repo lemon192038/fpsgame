@@ -15,3 +15,9 @@ Without `config.js` filled in, CPU matches still work as a guest; online needs G
 
 ## Known limits
 Online play uses Supabase Realtime broadcast with client-trusted hits (no server authority), so it suits friendly rooms, not competitive play. CPU levels are tuned by reasoning, not playtesting.
+
+## World, damage numbers, controls
+- 1,200 structure ids = 16 archetypes (apartments, towers, houses, shops, offices, warehouses, containers, cars, walls, crates, ruins, trees, umbrellas, beach balls, rocks, lifeguard towers) x 75 parametric variants. Buildings are hollow: doors, windows you can shoot through, floors, alternating staircases, roofs.
+- 120 maps = 10 themes (Beach, Desert, Forest, Suburb, Downtown, Industrial, Snow, Ruins, Harbor, Highrise) x 12 variants (density, time of day, layout). Pick in the menu (arrows / RANDOM). Online rooms derive their map from the room name.
+- Damage numbers pop up on hits (yellow = headshot); incoming damage shows near the crosshair.
+- Menu > CONTROLS: TOUCH or KEYBOARD + MOUSE (WASD, Space, mouse, right click aim, R reload, Esc menu).

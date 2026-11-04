@@ -11,7 +11,7 @@ addEventListener('resize',()=>{R.setSize(innerWidth,innerHeight);cam.aspect=inne
 {const c=document.createElement('canvas');c.width=2;c.height=256;const g=c.getContext('2d'),gr=g.createLinearGradient(0,0,0,256);
 gr.addColorStop(0,'#3f6fa8');gr.addColorStop(.55,'#d9b48f');gr.addColorStop(1,'#f0c9a0');g.fillStyle=gr;g.fillRect(0,0,2,256);
 const t=new THREE.CanvasTexture(c);t.encoding=THREE.sRGBEncoding;
-S.add(new THREE.Mesh(new THREE.SphereGeometry(250,24,16),new THREE.MeshBasicMaterial({map:t,side:THREE.BackSide,fog:false})));}
+S.add(window.oldSky=new THREE.Mesh(new THREE.SphereGeometry(250,24,16),new THREE.MeshBasicMaterial({map:t,side:THREE.BackSide,fog:false})));}
 S.add(new THREE.HemisphereLight(0xbcd4ff,0x7a6248,.85));
 const sun=new THREE.DirectionalLight(0xffdcb0,2.4);sun.position.set(40,55,25);sun.castShadow=true;
 sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-50,right:50,top:50,bottom:-50,near:1,far:150});sun.shadow.bias=-.0004;S.add(sun);
@@ -64,7 +64,7 @@ function shoot(){if(P.cd>0||P.rel>0)return;if(P.ammo<=0){reload();return}P.ammo-
  const spread=P.ads>.5?.002:.012;ray.setFromCamera({x:(Math.random()-.5)*spread*2,y:(Math.random()-.5)*spread*2},cam);
  const targets=solid.concat(enemies.flatMap(e=>e.userData.parts)),h=ray.intersectObjects(targets,false)[0];
  const end=h?h.point:ray.ray.at(80,new THREE.Vector3());
- if(h&&h.object.userData.e){const e=h.object.userData.e,u=e.userData,hs=h.object.geometry.type=='SphereGeometry';const dm=(u.team===0&&!u.remote)?0:(hs?100:34);if(u.remote)Net.hit(u.remote,dm);else u.hp-=dm;u.flash=.1;
+ if(h&&h.object.userData.e){const e=h.object.userData.e,u=e.userData,hs=h.object.geometry.type=='SphereGeometry';const dm=(u.team===0&&!u.remote)?0:(hs?100:34);if(u.remote)Net.hit(u.remote,dm);else u.hp-=dm;u.flash=.1;if(dm>0)Dmg.pop(h.point,dm,hs);
   $('hit').style.opacity=1;$('hit').style.borderColor=hs?'#ff4040':'#fff';setTimeout(()=>$('hit').style.opacity=0,90);
   if(!u.remote&&u.hp<=0&&!u.dead)Bots.kill(e,1);}
  const o=new THREE.Vector3(.2,-.2,-.9).applyMatrix4(cam.matrixWorld);
@@ -76,7 +76,7 @@ function reload(){if(P.rel<=0&&P.ammo<30){P.rel=1.6;snd(500,.15,.1,'square')}}
 const ptr={};const el=$('ui');
 function bind(id,dn,up){const b=$(id);b.addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault();b.setPointerCapture(e.pointerId);b.classList.add('on');dn()});
  const u=e=>{b.classList.remove('on');up&&up()};b.addEventListener('pointerup',u);b.addEventListener('pointercancel',u)}
-bind('fire',()=>held.fire=true,()=>held.fire=false);bind('ads',()=>held.ads=!held.ads);bind('rel',reload);bind('jump',()=>{if(P.pos.y<=1.71)P.vy=6.2});
+bind('fire',()=>held.fire=true,()=>held.fire=false);bind('ads',()=>held.ads=!held.ads);bind('rel',reload);bind('jump',()=>{if(P.vy===0)P.vy=5.2});
 const js=$('joy');let jid=null,jc;
 js.addEventListener('pointerdown',e=>{e.stopPropagation();jid=e.pointerId;js.setPointerCapture(jid);const r=js.getBoundingClientRect();jc=[r.left+70,r.top+70];jm(e)});
 function jm(e){let dx=(e.clientX-jc[0])/55,dy=(e.clientY-jc[1])/55;const l=Math.hypot(dx,dy);if(l>1){dx/=l;dy/=l}joy.x=dx;joy.y=dy;$('knob').style.transform=`translate(${dx*40}px,${dy*40}px)`}
@@ -96,7 +96,7 @@ function tick(now){requestAnimationFrame(tick);const dt=Math.min((now-T)/1000,.0
   const sp=(5.2-P.ads*2.2)*Math.hypot(joy.x,joy.y);const cy=Math.cos(P.yaw),sy=Math.sin(P.yaw);
   P.pos.x+=(-sy*-joy.y+cy*joy.x)*(5.2-P.ads*2.2)*dt*-1*-1;P.pos.z+=(-cy*-joy.y-sy*joy.x)*(5.2-P.ads*2.2)*dt*-1*-1;
   P.pos.x=Math.max(-B+1,Math.min(B-1,P.pos.x));P.pos.z=Math.max(-B+1,Math.min(B-1,P.pos.z));push(P.pos,.45);
-  P.vy-=16*dt;P.pos.y+=P.vy*dt;if(P.pos.y<1.7){P.pos.y=1.7;P.vy=0}
+  P.vy-=16*dt;P.pos.y+=P.vy*dt;{const gy=groundAt(P.pos)+1.7;if(P.pos.y<=gy){P.pos.y=gy;P.vy=0}}
   P.bob+=sp*dt*2;if(performance.now()-P.last>4500&&P.hp<100)P.hp=Math.min(100,P.hp+dt*25);
   Bots.update(dt,now);
  }
@@ -104,6 +104,7 @@ function tick(now){requestAnimationFrame(tick);const dt=Math.min((now-T)/1000,.0
  cam.position.copy(P.pos);cam.position.y+=Math.sin(P.bob)*.03*(1-P.ads);
  cam.rotation.y=P.yaw;cam.rotation.x=P.pitch+P.recoil*.012;cam.fov+=((75-P.ads*28)-cam.fov)*Math.min(1,dt*12);cam.updateProjectionMatrix();
  gun.position.lerpVectors(hip,adsP,P.ads);gun.position.z+=P.recoil*.06+(P.rel>0?.05:0);gun.position.y+=Math.sin(P.bob*.5)*.006*(1-P.ads)-(P.rel>0?.12:0);gun.rotation.x=P.recoil*.05+(P.rel>0?-.5:0);
+ Dmg.update(dt);World.update(dt);
  for(let i=tracers.length-1;i>=0;i--){const t=tracers[i];t.t-=dt;if(t.l.material.opacity!==undefined&&t.l.isLine)t.l.material.opacity=Math.max(0,t.t*12);if(t.t<=0){S.remove(t.l);t.l.geometry.dispose();tracers.splice(i,1)}}
  $('score').textContent='WAVE '+P.wave+' · '+P.kills+' KILLS';$('hpf').style.width=Math.max(0,P.hp)+'%';$('hpf').style.background=P.hp<35?'#e05050':'#7bd88f';
  $('ammo').textContent=P.rel>0?'RELOADING':P.ammo+' / ∞';R.render(S,cam)}

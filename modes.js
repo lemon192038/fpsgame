@@ -7,7 +7,7 @@ const Modes={mode:'1v1',lv:'Normal',stats:{k:0,d:0,m:0},wave:1,
  get D(){const a=LV[this.lv];return{react:a[0],fi:a[1],acc:a[2],dmg:a[3],spd:a[4],aware:a[5]}},
  menu(){P.on=false;Net.leave();$('msg').style.display='none';$('menu').style.display='flex';ui()},
  end(title){P.on=false;$('msg').style.display='flex';$('msg').innerHTML='<h1>'+title+'</h1><p>'+P.kills+' kills</p><p><b>Tap to play again</b></p>'},
- again(){enemies.forEach(e=>{if(!e.userData.remote)S.remove(e)});for(let i=enemies.length-1;i>=0;i--)if(!enemies[i].userData.remote)enemies.splice(i,1);
+ again(){World.load(Net.on?Net.map:Modes.map);enemies.forEach(e=>{if(!e.userData.remote)S.remove(e)});for(let i=enemies.length-1;i>=0;i--)if(!enemies[i].userData.remote)enemies.splice(i,1);
   Object.assign(P,{hp:100,ammo:30,kills:0,dead:false,rel:0,vy:0,wave:1});this.wave=1;
   if(Net.on)P.pos.set((rnd()-.5)*60,1.7,(rnd()-.5)*60);
   else{const m=this.mode,at=(t,n,z)=>{for(let i=0;i<n;i++)Bots.mk(t,(i-(n-1)/2)*8,z)};this.stats.m++;Auth.save();
@@ -63,7 +63,7 @@ const Auth={id:localStorage.gid||(localStorage.gid=crypto.randomUUID()),name:'Gu
  save(){if(!this.user)return;clearTimeout(this.t);this.t=setTimeout(()=>this.sb.from('profiles').upsert({id:this.id,name:this.name,kills:Modes.stats.k,deaths:Modes.stats.d,matches:Modes.stats.m}),1500)}};
 const Net={on:false,ch:null,peers:{},
  peer(p){if(!this.peers[p.id]){const e=Bots.mk(1+Object.keys(this.peers).length%4,p.x,p.z,p.id,p.name);e.userData.tp=new THREE.Vector3(p.x,0,p.z);e.userData.ty=0;this.peers[p.id]=e}return this.peers[p.id]},
- join(room){const ch=this.ch=Auth.sb.channel('room:'+room,{config:{broadcast:{self:false},presence:{key:Auth.id}}});
+ join(room){this.map=([...room].reduce((a,c)=>(a*31+c.charCodeAt(0))>>>0,7))%NM;const ch=this.ch=Auth.sb.channel('room:'+room,{config:{broadcast:{self:false},presence:{key:Auth.id}}});
   ch.on('broadcast',{event:'pose'},({payload:p})=>{const e=Net.peer(p),u=e.userData;u.tp.set(p.x,0,p.z);u.ty=p.y;if(u.dead&&performance.now()-u.downAt>2500){u.dead=0;e.rotation.x=0;e.position.y=0}})
   .on('broadcast',{event:'hit'},({payload:p})=>{if(p.to===Auth.id)hurt(p.dmg,p.by)})
   .on('broadcast',{event:'down'},({payload:p})=>{const e=Net.peers[p.id];if(e){e.userData.dead=.001;e.userData.downAt=performance.now()}if(p.by===Auth.id){P.kills++;Modes.stats.k++;Auth.save();Bots.banner()}})
