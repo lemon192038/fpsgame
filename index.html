@@ -31,12 +31,13 @@ canvas{display:block;position:fixed;inset:0}
 #kill{position:absolute;left:0;right:0;top:60%;text-align:center;font-size:68px;font-weight:900;letter-spacing:.3em;color:#ff3b30;text-shadow:0 0 28px rgba(255,59,48,.9);opacity:0;pointer-events:none}
 #kill.show{animation:k 1.1s ease-out}@keyframes k{0%{opacity:0;transform:scale(2.4)}15%{opacity:1;transform:scale(1)}80%{opacity:1}100%{opacity:0;transform:scale(.9)}}
 body.kb .b,body.kb #joy{display:none}#ctlr{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:center}
+#jz{position:absolute;left:0;bottom:0;width:35%;height:72%}body.kb #jz{display:none}#joy{pointer-events:none}
 </style></head><body>
 <div id="ui">
  <div id="hud"><div><div id="score">WAVE 1 · 0 KILLS</div><div id="hp"><div id="hpf"></div></div></div><div id="ammo" style="font-size:28px">30 / ∞</div></div>
  <div id="cross"></div><div id="hit"></div><div id="dmg"></div>
- <div class="b" id="joy"><div id="knob"></div></div>
- <div class="b" id="fire">FIRE</div><div class="b" id="jump">JUMP</div><div class="b" id="rel">RELOAD</div><div class="b" id="ads">AIM</div><div class="b" id="crc" style="left:60px;bottom:190px;width:62px;height:62px">CROUCH</div><div class="b" id="swp" style="right:186px;bottom:104px;width:62px;height:62px">SWAP</div><div id="wname" style="position:absolute;right:18px;top:48px;font-weight:700;text-shadow:0 1px 4px #000;pointer-events:none"></div>
+ <div id="jz"></div><div class="b" id="joy"><div id="knob"></div></div>
+ <div class="b" id="fire">FIRE</div><div class="b" id="jump">JUMP</div><div class="b" id="rel">RELOAD</div><div class="b" id="ads">AIM</div><div class="b" id="crc" style="right:232px;bottom:36px;width:62px;height:62px">CROUCH</div><div class="b" id="swp" style="right:186px;bottom:104px;width:62px;height:62px">SWAP</div><div id="wname" style="position:absolute;right:18px;top:48px;font-weight:700;text-shadow:0 1px 4px #000;pointer-events:none"></div>
  <div id="kill">KILL</div><div id="dmgin" style="position:absolute;left:50%;top:56%;transform:translateX(-50%);color:#ff5a4a;font:800 26px sans-serif;text-shadow:0 1px 4px #000;opacity:0;transition:opacity .3s;pointer-events:none"></div><div class="b" id="mbtn" style="left:50%;top:44px;width:46px;height:46px;margin-left:-23px;font-size:11px">MENU</div>
 <div id="menu"><h1>IRON DUSK</h1><div class="row" id="langr"></div><div id="acct"></div><div class="row" id="modes"></div><div class="row" id="lvs"></div>
 <div class="row" id="mapr"></div><div class="row" id="ctlr"></div><div class="row" id="wrow"></div><div class="row"><div class="opt go" id="pcpu">PLAY vs CPU</div><div class="opt go" id="ponl">PLAY ONLINE</div><div class="opt go" id="pqm">QUICK MATCH</div></div><input id="room" value="lobby" maxlength="16" aria-label="room"></div>

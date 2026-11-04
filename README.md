@@ -31,3 +31,7 @@ Online play uses Supabase Realtime broadcast with client-trusted hits (no server
 
 ## Languages
 Menu > top row: 日本語 / 中文 / English (saved in the browser; defaults to the browser language). UI text is translated through the phrase table in `i18n.js`; add a row there to translate new text.
+
+## v4
+- Movement stick is now a floating stick: touch anywhere in the lower-left 35% x 72% of the screen. CROUCH moved next to JUMP.
+- Secondary slot also offers melee: 4 knives and 2 knuckle weapons (backstab from behind = 4x damage, reach 2.4 m, no ammo).

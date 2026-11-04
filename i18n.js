@@ -8,7 +8,7 @@ const TR=[['Playing as','プレイヤー:','当前身份:'],['(guest)','(ゲス�
 ['RELOADING','リロード中','换弹中'],['RELOAD','リロード','换弹'],['FIRE','撃つ','开火'],['AIM','ADS','瞄准'],['JUMP','ジャンプ','跳跃'],['CROUCH','しゃがむ','蹲下'],['SWAP','持替','切换'],['MENU','メニュー','菜单'],['YOU','自分','我方'],['ENEMY','敵','敌方'],
 ['DOWN','ダウン','倒下'],['reached wave','到達ウェーブ:','到达波次:'],['Tap to redeploy','タップして再出撃','点击重新出击'],['VICTORY','勝利','胜利'],['DEFEAT','敗北','失败'],['ELIMINATED','撃破された','被击败'],['Respawning…','復活中…','复活中…'],
 ['Tap to play again','タップしてもう一度','点击再玩一次'],['Tap to return to menu','タップしてメニューへ','点击返回菜单'],['SEARCHING…','検索中…','匹配中…'],['players','人','名玩家'],['random map','ランダムマップ','随机地图'],['Tap to cancel','タップでキャンセル','点击取消'],
-['CPU ONLY','CPU専用','仅限电脑'],['WAVE is single-player. Pick 1v1, 5v5 or 1v1v1v1v1.','ウェーブは1人用です。1v1・5v5・個人戦5人から選んでください。','波次模式仅限单人。请选择1v1、5v5或5人混战。'],['Tap to go back','タップで戻る','点击返回'],['Tap to deploy','タップして出撃','点击出击']];
+['CPU ONLY','CPU専用','仅限电脑'],['WAVE is single-player. Pick 1v1, 5v5 or 1v1v1v1v1.','ウェーブは1人用です。1v1・5v5・個人戦5人から選んでください。','波次模式仅限单人。请选择1v1、5v5或5人混战。'],['Tap to go back','タップで戻る','点击返回'],['Combat Knife','コンバットナイフ','战斗匕首'],['Tactical Knife','タクティカルナイフ','战术匕首'],['Tanto','短刀','短刀'],['Kukri','ククリ','廓尔喀弯刀'],['Brass Knuckles','メリケンサック','指虎'],['Spiked Knuckles','スパイク付きメリケン','尖刺指虎'],['Tap to deploy','タップして出撃','点击出击']];
 let LANG=localStorage.lang||(/^ja/.test(navigator.language)?'ja':/^zh/.test(navigator.language)?'zh':'en');
 const esc=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&'),RX=TR.slice().sort((a,b)=>b[0].length-a[0].length).map(r=>[new RegExp('(^|[^A-Za-z])'+esc(r[0])+'(?![A-Za-z])','g'),r[1],r[2]]),ORIG=new WeakMap();
 function conv(s){if(LANG=='en')return s;const k=LANG=='ja'?1:2;for(const r of RX)s=s.replace(r[0],(m,p)=>p+r[k]);return s}
