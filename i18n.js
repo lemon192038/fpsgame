@@ -19,4 +19,4 @@ function setLang(l){LANG=l;localStorage.lang=l;document.documentElement.lang=l;w
 const _ui3=ui;ui=function(){_ui3();$('langr').innerHTML=[['ja','日本語'],['zh','中文'],['en','English']].map(l=>'<div class="opt '+(LANG==l[0]?'sel':'')+'" data-l="'+l[0]+'">'+l[1]+'</div>').join('');
  $('langr').querySelectorAll('.opt').forEach(o=>o.onclick=()=>setLang(o.dataset.l))};
 document.documentElement.lang=LANG;ui();walk($('ui'));
-if(!window.BUILD||!$('jz'))$('menu').insertAdjacentHTML('afterbegin','<div style="background:#a33;padding:8px 12px;border-radius:8px">ファイルが古い可能性があります。index.html と game.js を再アップロードしてください</div>');
+if(!window.BUILD||BUILD<6||!$('jz'))$('menu').insertAdjacentHTML('afterbegin','<div style="background:#a33;padding:8px 12px;border-radius:8px">ファイルが古い可能性があります。index.html と game.js を再アップロードしてください</div>');
