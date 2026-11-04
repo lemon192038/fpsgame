@@ -21,3 +21,10 @@ Online play uses Supabase Realtime broadcast with client-trusted hits (no server
 - 120 maps = 10 themes (Beach, Desert, Forest, Suburb, Downtown, Industrial, Snow, Ruins, Harbor, Highrise) x 12 variants (density, time of day, layout). Pick in the menu (arrows / RANDOM). Online rooms derive their map from the room name.
 - Damage numbers pop up on hits (yellow = headshot); incoming damage shows near the crosshair.
 - Menu > CONTROLS: TOUCH or KEYBOARD + MOUSE (WASD, Space, mouse, right click aim, R reload, Esc menu).
+
+## v3
+- Fixed online height sync (feet height + crouch are sent with every pose).
+- 110 weapon models (78 primary-only, 32 secondary-only; stats generated per model from 12 families), switch with SWAP / 1,2,Q.
+- Crouch (C / CROUCH), slide (crouch while sprinting), sprint (Shift / push stick to the edge).
+- Weather: rain, storms with lightning, snow. New structures: container blocks, container ramp stacks, overpasses, water towers.
+- QUICK MATCH: pick 1v1 (2 players), 5v5 (10) or 1v1v1v1v1 (5); the match starts when enough players are waiting; the map is random.

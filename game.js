@@ -76,7 +76,7 @@ function reload(){if(P.rel<=0&&P.ammo<30){P.rel=1.6;snd(500,.15,.1,'square')}}
 const ptr={};const el=$('ui');
 function bind(id,dn,up){const b=$(id);b.addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault();b.setPointerCapture(e.pointerId);b.classList.add('on');dn()});
  const u=e=>{b.classList.remove('on');up&&up()};b.addEventListener('pointerup',u);b.addEventListener('pointercancel',u)}
-bind('fire',()=>held.fire=true,()=>held.fire=false);bind('ads',()=>held.ads=!held.ads);bind('rel',reload);bind('jump',()=>{if(P.vy===0)P.vy=5.2});
+bind('fire',()=>held.fire=true,()=>held.fire=false);bind('ads',()=>held.ads=!held.ads);bind('rel',()=>reload());bind('jump',()=>{if(P.vy===0)P.vy=5.2});
 const js=$('joy');let jid=null,jc;
 js.addEventListener('pointerdown',e=>{e.stopPropagation();jid=e.pointerId;js.setPointerCapture(jid);const r=js.getBoundingClientRect();jc=[r.left+70,r.top+70];jm(e)});
 function jm(e){let dx=(e.clientX-jc[0])/55,dy=(e.clientY-jc[1])/55;const l=Math.hypot(dx,dy);if(l>1){dx/=l;dy/=l}joy.x=dx;joy.y=dy;$('knob').style.transform=`translate(${dx*40}px,${dy*40}px)`}
@@ -90,22 +90,22 @@ document.addEventListener('gesturestart',e=>e.preventDefault());
 // loop
 let T=performance.now();const fwd=new THREE.Vector3(),rgt=new THREE.Vector3();
 function tick(now){requestAnimationFrame(tick);const dt=Math.min((now-T)/1000,.05);T=now;
- if(P.on){P.cd-=dt;if(P.rel>0){P.rel-=dt;if(P.rel<=0)P.ammo=30}
+ if(P.on){P.cd-=dt;if(P.rel>0){P.rel-=dt;if(P.rel<=0)P.ammo=Wp.cur.mag}
   if(held.fire)shoot();
   P.ads+=((held.ads?1:0)-P.ads)*Math.min(1,dt*12);
-  const sp=(5.2-P.ads*2.2)*Math.hypot(joy.x,joy.y);const cy=Math.cos(P.yaw),sy=Math.sin(P.yaw);
-  P.pos.x+=(-sy*-joy.y+cy*joy.x)*(5.2-P.ads*2.2)*dt*-1*-1;P.pos.z+=(-cy*-joy.y-sy*joy.x)*(5.2-P.ads*2.2)*dt*-1*-1;
+  const sp=Mv.spd()*Math.hypot(joy.x,joy.y);const cy=Math.cos(P.yaw),sy=Math.sin(P.yaw);
+  P.pos.x+=(-sy*-joy.y+cy*joy.x)*Mv.spd()*dt*-1*-1;P.pos.z+=(-cy*-joy.y-sy*joy.x)*Mv.spd()*dt*-1*-1;
   P.pos.x=Math.max(-B+1,Math.min(B-1,P.pos.x));P.pos.z=Math.max(-B+1,Math.min(B-1,P.pos.z));push(P.pos,.45);
   P.vy-=16*dt;P.pos.y+=P.vy*dt;{const gy=groundAt(P.pos)+1.7;if(P.pos.y<=gy){P.pos.y=gy;P.vy=0}}
   P.bob+=sp*dt*2;if(performance.now()-P.last>4500&&P.hp<100)P.hp=Math.min(100,P.hp+dt*25);
   Bots.update(dt,now);
  }
  P.recoil*=Math.pow(.0005,dt);ml.intensity*=.3;mf.material.opacity*=.3;
- cam.position.copy(P.pos);cam.position.y+=Math.sin(P.bob)*.03*(1-P.ads);
- cam.rotation.y=P.yaw;cam.rotation.x=P.pitch+P.recoil*.012;cam.fov+=((75-P.ads*28)-cam.fov)*Math.min(1,dt*12);cam.updateProjectionMatrix();
+ cam.position.copy(P.pos);cam.position.y+=Math.sin(P.bob)*.03*(1-P.ads)-Mv.drop;
+ cam.rotation.y=P.yaw;cam.rotation.x=P.pitch+P.recoil*.012;cam.fov+=((75-P.ads*Wp.cur.zm)-cam.fov)*Math.min(1,dt*12);cam.updateProjectionMatrix();
  gun.position.lerpVectors(hip,adsP,P.ads);gun.position.z+=P.recoil*.06+(P.rel>0?.05:0);gun.position.y+=Math.sin(P.bob*.5)*.006*(1-P.ads)-(P.rel>0?.12:0);gun.rotation.x=P.recoil*.05+(P.rel>0?-.5:0);
- Dmg.update(dt);World.update(dt);
+ Dmg.update(dt);World.update(dt);Wp.update();Mv.update(dt);
  for(let i=tracers.length-1;i>=0;i--){const t=tracers[i];t.t-=dt;if(t.l.material.opacity!==undefined&&t.l.isLine)t.l.material.opacity=Math.max(0,t.t*12);if(t.t<=0){S.remove(t.l);t.l.geometry.dispose();tracers.splice(i,1)}}
- $('score').textContent='WAVE '+P.wave+' · '+P.kills+' KILLS';$('hpf').style.width=Math.max(0,P.hp)+'%';$('hpf').style.background=P.hp<35?'#e05050':'#7bd88f';
+ $('score').textContent=Match.on?Match.txt():'WAVE '+P.wave+' · '+P.kills+' KILLS';$('hpf').style.width=Math.max(0,P.hp)+'%';$('hpf').style.background=P.hp<35?'#e05050':'#7bd88f';
  $('ammo').textContent=P.rel>0?'RELOADING':P.ammo+' / ∞';R.render(S,cam)}
 requestAnimationFrame(tick);

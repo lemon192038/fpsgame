@@ -7,8 +7,8 @@ const Modes={mode:'1v1',lv:'Normal',stats:{k:0,d:0,m:0},wave:1,
  get D(){const a=LV[this.lv];return{react:a[0],fi:a[1],acc:a[2],dmg:a[3],spd:a[4],aware:a[5]}},
  menu(){P.on=false;Net.leave();$('msg').style.display='none';$('menu').style.display='flex';ui()},
  end(title){P.on=false;$('msg').style.display='flex';$('msg').innerHTML='<h1>'+title+'</h1><p>'+P.kills+' kills</p><p><b>Tap to play again</b></p>'},
- again(){World.load(Net.on?Net.map:Modes.map);enemies.forEach(e=>{if(!e.userData.remote)S.remove(e)});for(let i=enemies.length-1;i>=0;i--)if(!enemies[i].userData.remote)enemies.splice(i,1);
-  Object.assign(P,{hp:100,ammo:30,kills:0,dead:false,rel:0,vy:0,wave:1});this.wave=1;
+ again(){Wp.reset();World.load(Net.on?Net.map:Modes.map);enemies.forEach(e=>{if(!e.userData.remote)S.remove(e)});for(let i=enemies.length-1;i>=0;i--)if(!enemies[i].userData.remote)enemies.splice(i,1);
+  Object.assign(P,{hp:100,ammo:Wp.cur.mag,kills:0,dead:false,rel:0,vy:0,wave:1});this.wave=1;
   if(Net.on)P.pos.set((rnd()-.5)*60,1.7,(rnd()-.5)*60);
   else{const m=this.mode,at=(t,n,z)=>{for(let i=0;i<n;i++)Bots.mk(t,(i-(n-1)/2)*8,z)};this.stats.m++;Auth.save();
    if(m=='1v1'){P.pos.set(0,1.7,36);at(1,1,-36)}
@@ -51,8 +51,8 @@ const Bots={
 const _hurt=hurt;
 hurt=function(n,by){if(!Net.on){const was=P.dead;_hurt(n);if(!was&&P.dead){Modes.stats.d++;Auth.save()}return}
  if(P.dead)return;P.hp-=n;P.last=performance.now();$('dmg').style.opacity=1;setTimeout(()=>$('dmg').style.opacity=0,120);snd(90,.2,.3,'square');
- if(P.hp<=0){P.dead=true;P.on=false;Net.send('down',{id:Auth.id,by});Modes.stats.d++;Auth.save();$('msg').style.display='flex';$('msg').innerHTML='<h1>ELIMINATED</h1><p>Respawning…</p>';
-  setTimeout(()=>{if(!Net.on)return;P.hp=100;P.ammo=30;P.dead=false;P.pos.set((rnd()-.5)*60,1.7,(rnd()-.5)*60);$('msg').style.display='none';P.on=true},3000)}};
+ if(P.hp<=0){P.dead=true;P.on=false;Net.send('down',{id:Auth.id,by});Match.kill(by,Auth.id);Modes.stats.d++;Auth.save();$('msg').style.display='flex';$('msg').innerHTML='<h1>ELIMINATED</h1><p>Respawning…</p>';
+  setTimeout(()=>{if(!Net.on||Match.over)return;P.hp=100;P.ammo=Wp.cur.mag;P.dead=false;P.pos.set((rnd()-.5)*60,1.7,(rnd()-.5)*60);$('msg').style.display='none';P.on=true},3000)}};
 const Auth={id:localStorage.gid||(localStorage.gid=crypto.randomUUID()),name:'Guest'+(1000+Math.floor(Math.random()*9000)),user:null,sb:null,
  async init(){const c=window.CONFIG||{};if(c.SUPABASE_URL&&c.SUPABASE_ANON_KEY&&window.supabase){this.sb=supabase.createClient(c.SUPABASE_URL,c.SUPABASE_ANON_KEY);
   const{data}=await this.sb.auth.getSession();this.set(data.session);this.sb.auth.onAuthStateChange((_,s)=>this.set(s))}ui()},
@@ -62,16 +62,16 @@ const Auth={id:localStorage.gid||(localStorage.gid=crypto.randomUUID()),name:'Gu
  async load(){const{data}=await this.sb.from('profiles').select('*').eq('id',this.id).maybeSingle();Modes.stats=data?{k:data.kills,d:data.deaths,m:data.matches}:{k:0,d:0,m:0};if(!data)this.save();ui()},
  save(){if(!this.user)return;clearTimeout(this.t);this.t=setTimeout(()=>this.sb.from('profiles').upsert({id:this.id,name:this.name,kills:Modes.stats.k,deaths:Modes.stats.d,matches:Modes.stats.m}),1500)}};
 const Net={on:false,ch:null,peers:{},
- peer(p){if(!this.peers[p.id]){const e=Bots.mk(1+Object.keys(this.peers).length%4,p.x,p.z,p.id,p.name);e.userData.tp=new THREE.Vector3(p.x,0,p.z);e.userData.ty=0;this.peers[p.id]=e}return this.peers[p.id]},
+ peer(p){if(!this.peers[p.id]){const e=Bots.mk(Match.hue(p.id,Object.keys(this.peers).length),p.x,p.z,p.id,p.name);e.userData.tp=new THREE.Vector3(p.x,p.h||0,p.z);e.userData.ty=0;e.userData.ally=Match.ally(p.id);this.peers[p.id]=e}return this.peers[p.id]},
  join(room){this.map=([...room].reduce((a,c)=>(a*31+c.charCodeAt(0))>>>0,7))%NM;const ch=this.ch=Auth.sb.channel('room:'+room,{config:{broadcast:{self:false},presence:{key:Auth.id}}});
-  ch.on('broadcast',{event:'pose'},({payload:p})=>{const e=Net.peer(p),u=e.userData;u.tp.set(p.x,0,p.z);u.ty=p.y;if(u.dead&&performance.now()-u.downAt>2500){u.dead=0;e.rotation.x=0;e.position.y=0}})
+  ch.on('broadcast',{event:'pose'},({payload:p})=>{const e=Net.peer(p),u=e.userData;u.tp.set(p.x,p.h||0,p.z);u.ty=p.y;e.scale.y=p.c?.75:1;if(u.dead&&performance.now()-u.downAt>2500){u.dead=0;e.rotation.x=0}})
   .on('broadcast',{event:'hit'},({payload:p})=>{if(p.to===Auth.id)hurt(p.dmg,p.by)})
-  .on('broadcast',{event:'down'},({payload:p})=>{const e=Net.peers[p.id];if(e){e.userData.dead=.001;e.userData.downAt=performance.now()}if(p.by===Auth.id){P.kills++;Modes.stats.k++;Auth.save();Bots.banner()}})
+  .on('broadcast',{event:'down'},({payload:p})=>{const e=Net.peers[p.id];if(e){e.userData.dead=.001;e.userData.downAt=performance.now()}Match.kill(p.by,p.id);if(p.by===Auth.id){P.kills++;Modes.stats.k++;Auth.save();Bots.banner()}})
   .on('presence',{event:'leave'},({key})=>{const e=Net.peers[key];if(e){S.remove(e);enemies.splice(enemies.indexOf(e),1);delete Net.peers[key]}})
   .subscribe(s=>{if(s==='SUBSCRIBED'){ch.track({name:Auth.name});Net.on=true;Modes.again()}})},
  leave(){if(!this.ch)return;this.ch.unsubscribe();this.ch=null;this.on=false;Object.values(this.peers).forEach(e=>{S.remove(e);enemies.splice(enemies.indexOf(e),1)});this.peers={}},
  send(ev,payload){this.ch&&this.ch.send({type:'broadcast',event:ev,payload})},hit(to,dmg){this.send('hit',{to,dmg,by:Auth.id})}};
-setInterval(()=>{if(Net.on&&P.on)Net.send('pose',{id:Auth.id,name:Auth.name,x:P.pos.x,z:P.pos.z,y:P.yaw+Math.PI})},100);
+setInterval(()=>{if(Net.on&&P.on)Net.send('pose',{id:Auth.id,name:Auth.name,x:P.pos.x,z:P.pos.z,y:P.yaw+Math.PI,h:P.pos.y-1.7,c:Mv.crouch||Mv.sl>0?1:0})},100);
 function ui(){const s=Modes.stats,a=$('acct');
  a.innerHTML=Auth.user?'Signed in: <b>'+Auth.name+'</b> · '+s.k+' kills / '+s.d+' deaths · '+s.m+' matches <span class="opt" id="lo">Sign out</span>':
   'Playing as <b>'+Auth.name+'</b> (guest) '+(Auth.sb?'<span class="opt" id="li">Sign in with Google</span>':'· Supabase not configured (see README)');
