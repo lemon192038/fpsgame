@@ -88,7 +88,7 @@ const Ab={w:null,last:-1,svg:{b:`<svg xmlns='http://www.w3.org/2000/svg' viewBox
   for(let i=0;i<m;i++){const e=document.createElement('i');e.style.cssText='width:'+wd+'px;height:'+wd*.4+'px;background-image:'+u;el.appendChild(e)}},
  sync(){const w=Wp.cur;if(this.w!==w)this.build(w);if(w.melee||P.ammo===this.last)return;this.last=P.ammo;const k=$('abar').children;for(let i=0;i<k.length;i++)k[i].classList.toggle('u',i>=P.ammo)}};
 ['gesturestart','gesturechange','gestureend'].forEach(t=>document.addEventListener(t,e=>e.preventDefault()));
-document.addEventListener('touchmove',e=>{if(e.touches.length>1||(e.scale&&e.scale!==1))e.preventDefault()},{passive:false});
+document.addEventListener('touchmove',e=>{if(e.touches.length>1||!e.target.closest('#menu'))e.preventDefault()},{passive:false});addEventListener('scroll',()=>scrollTo(0,0));
 let _lt=0;document.addEventListener('touchend',e=>{const n=Date.now();if(n-_lt<350&&!e.target.closest('#menu,#msg'))e.preventDefault();_lt=n},{passive:false});
 document.addEventListener('dblclick',e=>e.preventDefault());
 document.body.classList.toggle('kb',Ctl.mode=='kb');Wp.reset();World.load(0);ui();
