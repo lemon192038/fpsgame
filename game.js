@@ -77,7 +77,7 @@ const ptr={};const el=$('ui');
 function bind(id,dn,up){const b=$(id);b.addEventListener('pointerdown',e=>{e.stopPropagation();e.preventDefault();b.setPointerCapture(e.pointerId);b.classList.add('on');dn()});
  const u=e=>{b.classList.remove('on');up&&up()};b.addEventListener('pointerup',u);b.addEventListener('pointercancel',u)}
 bind('fire',()=>held.fire=true,()=>held.fire=false);bind('ads',()=>held.ads=!held.ads);bind('rel',()=>reload());bind('jump',()=>{if(P.vy===0)P.vy=5.2});
-const js=$('jz'),jv=$('joy');let jid=null,jc;
+window.BUILD=5;const js=$('jz')||$('joy'),jv=$('joy');let jid=null,jc;
 js.addEventListener('pointerdown',e=>{e.stopPropagation();jid=e.pointerId;js.setPointerCapture(jid);jc=[e.clientX,e.clientY];jv.style.left=(e.clientX-70)+'px';jv.style.top=(e.clientY-70)+'px';jv.style.bottom='auto';jv.classList.add('on');jm(e)});
 function jm(e){let dx=(e.clientX-jc[0])/55,dy=(e.clientY-jc[1])/55;const l=Math.hypot(dx,dy);if(l>1){dx/=l;dy/=l}joy.x=dx;joy.y=dy;$('knob').style.transform=`translate(${dx*40}px,${dy*40}px)`}
 js.addEventListener('pointermove',e=>{if(e.pointerId==jid)jm(e)});
