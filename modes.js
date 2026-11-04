@@ -1,7 +1,8 @@
 // Menu, accounts (Supabase + Google), CPU difficulty, game modes, online rooms.
 // [reaction s, fire interval s, base accuracy, damage, speed, aware range]
-const LV={'Very Easy':[2.6,2.4,.1,3,1.5,22],'Easy':[1.8,1.7,.2,4,2,28],'Normal':[1.2,1.1,.36,6,2.6,38],'Hard':[.8,.8,.5,8,3.2,46],
-'Expert':[.55,.55,.64,9,3.8,55],'Master':[.35,.4,.76,10,4.3,65],'Pro':[.22,.28,.87,11,4.8,75],'Cheater':[.08,.1,.97,12,5.6,120]};
+const LV={'Very Easy':[1.2,1,.35,6,2.8,38],'Easy':[.6,.6,.62,9,3.8,52],'Normal':[.35,.4,.76,10,4.3,65],'Hard':[.25,.3,.84,11,4.7,72],
+'Expert':[.18,.22,.9,12,5.1,80],'Master':[.12,.16,.94,13,5.5,95],'Pro':[.08,.1,.97,14,5.9,110],'Cheater':[.05,.07,.99,16,6.4,140]};
+window.MV=7;
 const MODES=[['1v1','1v1'],['5v5','5v5'],['ffa','1v1v1v1v1'],['wave','WAVE']],HUE=[.6,0,.1,.33,.8];
 const Modes={mode:'1v1',lv:'Normal',stats:{k:0,d:0,m:0},wave:1,
  get D(){const a=LV[this.lv];return{react:a[0],fi:a[1],acc:a[2],dmg:a[3],spd:a[4],aware:a[5]}},
@@ -23,7 +24,7 @@ const Bots={
   helm=new THREE.Mesh(new THREE.SphereGeometry(.23,12,8,0,6.3,0,1.5),hm),legs=new THREE.Mesh(new THREE.CylinderGeometry(.24,.2,.7,8),cl);
   body.position.y=.95;head.position.y=1.75;helm.position.y=1.78;legs.position.y=.35;
   const parts=[body,head,helm,legs];parts.forEach(m=>{m.castShadow=true;m.userData.e=e;e.add(m)});
-  e.position.set(x,0,z);e.userData={hp:100,team,cd:Modes.D.react+rnd(),off:rnd()*9,dead:0,flash:0,parts,remote:rid,name};
+  e.position.set(x,0,z);e.userData={hp:100,team,cd:Modes.D.react+rnd(),off:rnd()*9,dead:0,flash:0,parts,remote:rid,name};{const li=Object.keys(LV).indexOf(Modes.lv),pw=WP.filter(w=>w.slot=='P'&&!(li<2&&(w.code=='SN'||w.code=='LM'))),sw=WP.filter(w=>w.slot=='S');e.userData.p=pw[(rnd()*pw.length)|0];e.userData.s=sw[(rnd()*sw.length)|0]}
   if(name){const c=document.createElement('canvas');c.width=256;c.height=48;const g=c.getContext('2d');g.font='bold 32px sans-serif';g.textAlign='center';g.fillStyle='#fff';g.strokeStyle='#000';g.lineWidth=5;g.strokeText(name,128,36);g.fillText(name,128,36);
    const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),depthTest:false,fog:false}));sp.scale.set(1.6,.3,1);sp.position.y=2.3;e.add(sp)}
   S.add(e);enemies.push(e);return e},
@@ -38,14 +39,24 @@ const Bots={
    for(const o of live){const q=o.userData;if(o===e||q.team===u.team||q.remote||q.dead)continue;const d=e.position.distanceTo(o.position);if(d<td){td=d;t=o}}
    if(!P.dead&&u.team!==0){const d=Math.hypot(P.pos.x-e.position.x,P.pos.z-e.position.z);if(d<td){td=d;t=P}}
    if(!t)continue;const tp=t===P?P.pos:t.position,dx=tp.x-e.position.x,dz=tp.z-e.position.z,d=Math.hypot(dx,dz)||1;
-   e.rotation.y=Math.atan2(dx,dz);const want=d>14?1:d<7?-.6:0,st=Math.sin(now/900+u.off)*.8;
-   e.position.x+=(dx/d*want+dz/d*st)*D.spd*dt;e.position.z+=(dz/d*want-dx/d*st)*D.spd*dt;push(e.position,.4);
+   const li=Object.keys(LV).indexOf(Modes.lv),mul=D.dmg/28;
+   u.mt=(u.mt||0)-dt;if(u.mt<=0){u.act='';if(rnd()<dt*(.12+li*.09)){const r=rnd();u.act=r<.4?'jump':r<.75?'slide':'crouch';u.mt=u.act=='jump'?.75:u.act=='slide'?.6:1.4;if(u.act=='jump')u.vy=5.5;u.sd=rnd()<.5?1:-1}}
+   u.vy=(u.vy||0)-16*dt;e.position.y+=u.vy*dt;if(e.position.y<=0){e.position.y=0;u.vy=0}
+   e.scale.y=u.act=='slide'?.65:u.act=='crouch'?.8:1;e.rotation.y=Math.atan2(dx,dz);
+   let wp=u.p;if(d>wp.rng*1.5&&u.s.rng>wp.rng||(d<3&&u.s.melee))wp=u.s;
+   const pref=Math.max(4,Math.min(28,wp.rng*.5)),want=wp.melee?1:d>pref?1:d<pref*.5?-.6:0,st=Math.sin(now/900+u.off)*.8,spd=D.spd*(u.act=='crouch'?.5:1);
+   let vx=dx/d*want+dz/d*st,vz=dz/d*want-dx/d*st;if(u.act=='slide'){vx+=dz/d*u.sd*2.2;vz-=dx/d*u.sd*2.2}
+   e.position.x+=vx*spd*dt;e.position.z+=vz*spd*dt;push(e.position,.4);
    if(u.flash>0){u.flash-=dt;u.parts.forEach(m=>m.material.emissive.setHex(u.flash>0?0x992200:0))}
-   u.cd-=dt;if(u.cd>0||d>D.aware)continue;u.cd=D.fi*(.8+rnd()*.4);
-   const o=e.position.clone();o.y=1.4;const end=new THREE.Vector3(tp.x,t===P?tp.y-.3:1.2,tp.z),dir=end.clone().sub(o).normalize();ray.set(o,dir);
-   const w=ray.intersectObjects(solid,false)[0];if(w&&w.distance<o.distanceTo(end))continue;
-   const tr=new THREE.Line(new THREE.BufferGeometry().setFromPoints([o,end]),new THREE.LineBasicMaterial({color:0xff9060,transparent:true,fog:false}));S.add(tr);tracers.push({l:tr,t:.08});snd(160,.1,.1);
-   if(rnd()<Math.min(.97,D.acc*Math.max(.3,1-d/90))){if(t===P)hurt(D.dmg,'cpu');else{t.userData.hp-=D.dmg*2.5;t.userData.flash=.1;if(t.userData.hp<=0)Bots.kill(t,0)}}}
+   u.cd-=dt;const reach=wp.melee?2.6:Math.min(D.aware,wp.rng*1.8);if(u.cd>0||d>reach)continue;
+   const sh=wp.melee?1:wp.mode=='semi'?1:3,cyc=60/wp.rpm;u.cd=Math.max(D.fi*sh*(.8+rnd()*.4)+cyc*(sh-1),cyc)*(wp.melee?1.2:1);
+   const o=e.position.clone();o.y=e.position.y+1.4;const end=new THREE.Vector3(tp.x,t===P?tp.y-.3:1.2,tp.z),dir=end.clone().sub(o).normalize();ray.set(o,dir);
+   const wl=ray.intersectObjects(solid,false)[0];if(wl&&wl.distance<o.distanceTo(end))continue;
+   if(!wp.melee){const tr=new THREE.Line(new THREE.BufferGeometry().setFromPoints([o,end]),new THREE.LineBasicMaterial({color:0xff9060,transparent:true,fog:false}));S.add(tr);tracers.push({l:tr,t:.08})}
+   snd(wp.melee?180:wp.slot=='S'?260:wp.code=='SN'?120:wp.code=='SG'?150:200,.1,.1);
+   const pg=D.acc*Math.min(1.15,Math.max(.7,Math.pow(.012/Math.max(wp.sp,.001),.25)))*(u.act=='crouch'?1.1:u.act=='slide'?.7:1)*Math.max(.35,1-d/110)*Math.max(.35,1-Math.max(0,d-wp.rng)/80)*(t===P&&(Mv.crouch||Mv.sl>0)?.85:1);
+   let hits=0;for(let k=0;k<sh*wp.pel;k++)if(rnd()<Math.min(.99,pg))hits++;
+   if(hits>0){const dmg=hits*wp.dmg*mul;if(t===P)hurt(dmg,'cpu');else{t.userData.hp-=dmg*2.5;t.userData.flash=.1;if(t.userData.hp<=0)Bots.kill(t,0)}}}
   if(Net.on||!P.on)return;
   if(!live.some(o=>o.userData.team!==0)){if(Modes.mode=='wave'){Modes.wave++;P.wave=Modes.wave;enemies.forEach(e=>S.remove(e));enemies.length=0;Bots.horde()}else Modes.end('VICTORY')}}};
 const _hurt=hurt;
