@@ -49,10 +49,10 @@ const World={inst:null,wx:id=>{const v=(id/10)|0;return THEMES[id%10][0]=='Snow'
  init(){this.inst=new THREE.InstancedMesh(new THREE.BoxGeometry(1,1,1),new THREE.MeshStandardMaterial({map:tex('#cfcfcf',null,1),roughness:.88}),7500);
   Object.assign(this.inst,{castShadow:true,receiveShadow:true,frustumCulled:false});this.inst.setColorAt(0,new THREE.Color());S.add(this.inst);
   this.balls=new THREE.InstancedMesh(new THREE.SphereGeometry(1,14,10),new THREE.MeshStandardMaterial({roughness:.4}),300);this.balls.castShadow=true;this.balls.frustumCulled=false;this.balls.setColorAt(0,new THREE.Color());S.add(this.balls);
-  oldSky.visible=false;this.su={top:{value:new THREE.Color()},hor:{value:new THREE.Color()},sd:{value:new THREE.Vector3(0,1,0)},sc:{value:new THREE.Color()}};
+  oldSky.visible=false;this.su={top:{value:new THREE.Color()},hor:{value:new THREE.Color()},sd:{value:new THREE.Vector3(0,1,0)},sc:{value:new THREE.Color()},lin:{value:0}};
   const sk=new THREE.Mesh(new THREE.SphereGeometry(260,32,16),new THREE.ShaderMaterial({uniforms:this.su,side:THREE.BackSide,depthWrite:false,fog:false,
    vertexShader:'varying vec3 p;void main(){p=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-   fragmentShader:'uniform vec3 top,hor,sc,sd;varying vec3 p;void main(){vec3 n=normalize(p);float h=clamp(n.y,0.,1.);vec3 c=mix(hor,top,pow(h,.5));float s=max(dot(n,normalize(sd)),0.);c+=sc*(pow(s,900.)*4.+pow(s,10.)*.3);gl_FragColor=vec4(c,1.);}'}));S.add(sk);
+   fragmentShader:'uniform vec3 top,hor,sc,sd;uniform float lin;varying vec3 p;void main(){vec3 n=normalize(p);float h=clamp(n.y,0.,1.);vec3 c=mix(hor,top,pow(h,.5));float s=max(dot(n,normalize(sd)),0.);c+=sc*(pow(s,900.)*4.+pow(s,10.)*.3);gl_FragColor=vec4(lin>.5?pow(c,vec3(2.2)):c,1.);}'}));S.add(this.sk=sk);
   this.cm=[0,1,2].map(()=>new THREE.SpriteMaterial({map:cloudTex(),transparent:true,depthWrite:false,fog:false,opacity:.9}));this.clouds=[];
   for(let i=0;i<26;i++){const s=new THREE.Sprite(this.cm[i%3]),a=Math.random()*6.28,d=90+Math.random()*130;s.position.set(Math.cos(a)*d,55+Math.random()*50,Math.sin(a)*d);s.scale.set(90+Math.random()*60,35+Math.random()*20,1);s.userData.sp=1.5+Math.random()*2;S.add(s);this.clouds.push(s)}
   this.sea=new THREE.Mesh(new THREE.PlaneGeometry(19,90),new THREE.MeshStandardMaterial({color:0x2a7fb8,metalness:.3,roughness:.15,transparent:true,opacity:.92}));this.sea.rotation.x=-Math.PI/2;this.sea.position.set(35.5,.03,0);this.sea.receiveShadow=true;S.add(this.sea)},
@@ -71,7 +71,7 @@ const World={inst:null,wx:id=>{const v=(id/10)|0;return THEMES[id%10][0]=='Snow'
    if(placed.some(p=>Math.abs(p.x-x)<(p.w+s.w)/2+m&&Math.abs(p.z-z)<(p.d+s.d)/2+m))continue;
    placed.push({x,z,w:s.w,d:s.d});place(s,x,z)}
   if(th[0]=='Beach')for(let i=0;i<10+v*2;i++)ball((r()-.5)*70,(r()-.5)*70<0?(r()*-40):r()*20,.45+r()*.3,BALL[i%4]);
-  this.inst.count=N;this.inst.instanceMatrix.needsUpdate=true;this.inst.instanceColor.needsUpdate=true;this.balls.count=NB;this.balls.instanceMatrix.needsUpdate=true;this.balls.instanceColor.needsUpdate=true}};
+  this.inst.count=N;this.inst.instanceMatrix.needsUpdate=true;this.inst.instanceColor.needsUpdate=true;this.balls.count=NB;this.balls.instanceMatrix.needsUpdate=true;this.balls.instanceColor.needsUpdate=true;if(typeof Gfx!='undefined')Gfx.afterLoad()}};
 push=function(p,r){const feet=p===P.pos?p.y-1.7:p.y,head=feet+1.8;for(const b of boxes){if(feet>=b.y1-.5||head<=b.y0)continue;
  if(p.x>b.x0-r&&p.x<b.x1+r&&p.z>b.z0-r&&p.z<b.z1+r){const dx=Math.min(p.x-(b.x0-r),b.x1+r-p.x),dz=Math.min(p.z-(b.z0-r),b.z1+r-p.z);if(dx<dz)p.x+=(p.x-(b.x0+b.x1)/2>0?dx:-dx);else p.z+=(p.z-(b.z0+b.z1)/2>0?dz:-dz)}}};
 function groundAt(p){const f=p.y-1.7;let g=0;for(const b of boxes)if(b.y1<=f+.5&&b.y1>g&&p.x>b.x0-.2&&p.x<b.x1+.2&&p.z>b.z0-.2&&p.z<b.z1+.2)g=b.y1;return g}

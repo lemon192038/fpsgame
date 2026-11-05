@@ -36,7 +36,7 @@ function fire1(){const w=Wp.cur;let sp=(P.ads>.5?.15:1)*w.sp*(Mv.crouch?.7:1)*(M
    if(dm>0){if(u.remote)Net.hit(u.remote,dm);else u.hp-=dm;u.flash=.1;Dmg.pop(h.point,dm,hs);$('hit').style.opacity=1;$('hit').style.borderColor=hs?'#ff4040':'#fff';setTimeout(()=>$('hit').style.opacity=0,90)}
    if(!u.remote&&u.hp<=0&&!u.dead)Bots.kill(e,1)}
   const o=new THREE.Vector3(.2,-.2,-.9).applyMatrix4(cam.matrixWorld),l=new THREE.Line(new THREE.BufferGeometry().setFromPoints([o,end]),new THREE.LineBasicMaterial({color:0xffe0a0,transparent:true,fog:false}));S.add(l);tracers.push({l,t:.06});
-  if(w.pel==1&&h&&!h.object.userData.e){const s=new THREE.Mesh(new THREE.SphereGeometry(.05,6,6),new THREE.MeshBasicMaterial({color:0x222222}));s.position.copy(h.point);S.add(s);tracers.push({l:s,t:4})}}
+  if(h&&!h.object.userData.e&&Math.random()<.6&&typeof Gfx!='undefined')Gfx.spark(h.point,w.pel>1?3:8);if(w.pel==1&&h&&!h.object.userData.e){const s=new THREE.Mesh(new THREE.SphereGeometry(.05,6,6),new THREE.MeshBasicMaterial({color:0x222222}));s.position.copy(h.point);S.add(s);tracers.push({l:s,t:4})}}
  snd(w.slot=='S'?260:w.code=='SN'?120:w.code=='SG'?150:220,.12,.25);ml.intensity=40;mf.material.opacity=1;mf.rotation.z=Math.random()*6;P.recoil=w.rc}
 shoot=function(){if(P.dead)return;const w=Wp.cur;if(P.cd>0||P.rel>0||Wp.b||(w.mode!='auto'&&Wp.lock))return;if(w.melee){P.cd=60/w.rpm;Wp.sw=1;melee(w);return}if(P.ammo<=0){reload();return}
  Wp.lock=true;P.cd=60/w.rpm;
@@ -88,7 +88,7 @@ const Ab={w:null,last:-1,svg:{b:`<svg xmlns='http://www.w3.org/2000/svg' viewBox
   for(let i=0;i<m;i++){const e=document.createElement('i');e.style.cssText='width:'+wd+'px;height:'+wd*.4+'px;background-image:'+u;el.appendChild(e)}},
  sync(){const w=Wp.cur;if(this.w!==w)this.build(w);if(w.melee||P.ammo===this.last)return;this.last=P.ammo;const k=$('abar').children;for(let i=0;i<k.length;i++)k[i].classList.toggle('u',i>=P.ammo)}};
 ['gesturestart','gesturechange','gestureend'].forEach(t=>document.addEventListener(t,e=>e.preventDefault()));
-document.addEventListener('touchmove',e=>{if(e.touches.length>1||!e.target.closest('#menu'))e.preventDefault()},{passive:false});addEventListener('scroll',()=>scrollTo(0,0));
-let _lt=0;document.addEventListener('touchend',e=>{const n=Date.now();if(n-_lt<350&&!e.target.closest('#menu,#msg'))e.preventDefault();_lt=n},{passive:false});
+document.addEventListener('touchmove',e=>{if(e.touches.length>1||!e.target.closest('#menu,#gfx'))e.preventDefault()},{passive:false});addEventListener('scroll',()=>scrollTo(0,0));
+let _lt=0;document.addEventListener('touchend',e=>{const n=Date.now();if(n-_lt<350&&!e.target.closest('#menu,#msg,#gfx'))e.preventDefault();_lt=n},{passive:false});
 document.addEventListener('dblclick',e=>e.preventDefault());
 document.body.classList.toggle('kb',Ctl.mode=='kb');Wp.reset();World.load(0);ui();
