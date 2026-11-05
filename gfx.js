@@ -16,7 +16,7 @@ const Gfx={cfg:null,comp:null,fx:null,err:'',t:0,maps:[],
  size(){const p=this.pr();R.setPixelRatio(p);R.setSize(innerWidth,innerHeight);if(this.comp){const w=Math.round(innerWidth*p),h=Math.round(innerHeight*p);this.comp.setSize(w,h);if(this.fx)this.fx.material.uniforms.resolution.value.set(1/w,1/h)}},
  lin(v){if(World.su&&World.su.lin)World.su.lin.value=v?1:0},
  setShadow(q){const sz={OFF:0,LOW:512,MEDIUM:1024,HIGH:2048,ULTRA:4096}[q],r={LOW:30,MEDIUM:40,HIGH:50,ULTRA:50}[q]||50;R.shadowMap.enabled=sz>0;sun.castShadow=sz>0;R.shadowMap.type=q=='LOW'?THREE.PCFShadowMap:THREE.PCFSoftShadowMap;
-  if(sz){sun.shadow.mapSize.set(sz,sz);Object.assign(sun.shadow.camera,{left:-r,right:r,top:r,bottom:-r});sun.shadow.camera.updateProjectionMatrix();sun.shadow.bias=-.0004;sun.shadow.normalBias=.03;if(sun.shadow.map){sun.shadow.map.dispose();sun.shadow.map=null}}
+  if(sz){sun.shadow.mapSize.set(sz,sz);Object.assign(sun.shadow.camera,{left:-r,right:r,top:r,bottom:-r});sun.shadow.camera.updateProjectionMatrix();sun.shadow.bias=-.0008;sun.shadow.normalBias=.06;;if(sun.shadow.map){sun.shadow.map.dispose();sun.shadow.map=null}}
   World.balls.castShadow=sz>=1024;S.traverse(o=>{if(o.material)[].concat(o.material).forEach(m=>m.needsUpdate=true)});R.shadowMap.needsUpdate=true},
  canvas(rec,sz){const c=document.createElement('canvas');c.width=c.height=sz;const g=c.getContext('2d');g.fillStyle=rec[0];g.fillRect(0,0,sz,sz);const d=g.getImageData(0,0,sz,sz);for(let i=0;i<d.data.length;i+=4){const n=(Math.random()-.5)*34;d.data[i]+=n;d.data[i+1]+=n;d.data[i+2]+=n}g.putImageData(d,0,0);
   if(rec[1]){g.save();g.scale(sz/256,sz/256);rec[1](g);g.restore()}return c},
