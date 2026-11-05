@@ -2,7 +2,7 @@
 // [reaction s, fire interval s, base accuracy, damage, speed, aware range]
 const LV={'Very Easy':[1.2,1,.35,6,2.8,38],'Easy':[.6,.6,.62,9,3.8,52],'Normal':[.35,.4,.76,10,4.3,65],'Hard':[.25,.3,.84,11,4.7,72],
 'Expert':[.18,.22,.9,12,5.1,80],'Master':[.12,.16,.94,13,5.5,95],'Pro':[.08,.1,.97,14,5.9,110],'Cheater':[.05,.07,.99,16,6.4,140]};
-window.MV=9;
+window.MV=10;
 const MODES=[['1v1','1v1'],['5v5','5v5'],['ffa','1v1v1v1v1'],['ko1','KNOCKOUT 1v1'],['ko5','KNOCKOUT 5v5'],['wave','WAVE']],HUE=[.6,0,.1,.33,.8];
 const Modes={mode:'1v1',lv:'Normal',stats:{k:0,d:0,m:0},wave:1,
  get D(){const a=LV[this.lv];return{react:a[0],fi:a[1],acc:a[2],dmg:a[3],spd:a[4],aware:a[5]}},
@@ -39,7 +39,7 @@ const Bots={
    for(const o of live){const q=o.userData;if(o===e||q.team===u.team||q.remote||q.dead)continue;const d=e.position.distanceTo(o.position);if(d<td){td=d;t=o}}
    if(!P.dead&&u.team!==0){const d=Math.hypot(P.pos.x-e.position.x,P.pos.z-e.position.z);if(d<td){td=d;t=P}}
    if(!t)continue;const tp=t===P?P.pos:t.position,dx=tp.x-e.position.x,dz=tp.z-e.position.z,d=Math.hypot(dx,dz)||1;
-   const li=Object.keys(LV).indexOf(Modes.lv),mul=D.dmg/28;
+   const li=Object.keys(LV).indexOf(Modes.lv),mul=D.dmg/12;
    u.mt=(u.mt||0)-dt;if(u.mt<=0){u.act='';if(rnd()<dt*(.12+li*.09)){const r=rnd();u.act=r<.4?'jump':r<.75?'slide':'crouch';u.mt=u.act=='jump'?.75:u.act=='slide'?.6:1.4;if(u.act=='jump')u.vy=5.5;u.sd=rnd()<.5?1:-1}}
    u.vy=(u.vy||0)-16*dt;e.position.y+=u.vy*dt;if(e.position.y<=0){e.position.y=0;u.vy=0}
    e.scale.y=u.act=='slide'?.65:u.act=='crouch'?.8:1;e.rotation.y=Math.atan2(dx,dz);
