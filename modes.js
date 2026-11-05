@@ -45,7 +45,8 @@ const Bots={
    e.scale.y=u.act=='slide'?.65:u.act=='crouch'?.8:1;e.rotation.y=Math.atan2(dx,dz);
    let wp=u.p;if(d>wp.rng*1.5&&u.s.rng>wp.rng||(d<3&&u.s.melee))wp=u.s;
    const pref=Math.max(4,Math.min(28,wp.rng*.5)),want=wp.melee?1:d>pref?1:d<pref*.5?-.6:0,st=Math.sin(now/900+u.off)*.8,spd=D.spd*(u.act=='crouch'?.5:1);
-   let vx=dx/d*want+dz/d*st,vz=dz/d*want-dx/d*st;if(u.act=='slide'){vx+=dz/d*u.sd*2.2;vz-=dx/d*u.sd*2.2}
+   const wpt=(typeof Maze!='undefined'&&Maze.on)?Maze.step(e.position,tp):null,mx=wpt?wpt.x-e.position.x:dx,mz=wpt?wpt.z-e.position.z:dz,md=Math.hypot(mx,mz)||1;
+   let vx=mx/md*want+mz/md*st,vz=mz/md*want-mx/md*st;if(u.act=='slide'){vx+=mz/md*u.sd*2.2;vz-=mx/md*u.sd*2.2}
    e.position.x+=vx*spd*dt;e.position.z+=vz*spd*dt;push(e.position,.4);
    if(u.flash>0){u.flash-=dt;u.parts.forEach(m=>m.material.emissive.setHex(u.flash>0?0x992200:0))}
    u.cd-=dt;const reach=wp.melee?2.6:Math.min(D.aware,wp.rng*1.8);if(u.cd>0||d>reach)continue;
