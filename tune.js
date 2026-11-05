@@ -55,7 +55,7 @@ Maze.gstep=function(p,t){const G=this.G,[i,j]=this.gcell(p.x,p.z),[ti,tj]=this.g
 Modes.kind=+localStorage.kd||0;
 const _wl=World.load.bind(World);World.load=function(id){Maze.on=false;_wl(id);const th=THEMES[id%10],v=(id/10)|0,wx=World.wx(id),pi=wx=='clear'?(th[4]+v)%6:wx=='snow'?4:3,hm=S.children.find(o=>o.isHemisphereLight);
  if(pi==2||pi==5){hm.color.setHex(SKY[pi][1]);hm.intensity=1.3;sun.intensity=Math.max(sun.intensity,2.8);if(pi==5)S.fog.color.setHex(0x8a7a90)}
- R.toneMappingExposure=[1.05,1.05,1.35,1,1,1.7][pi];World.sunI=sun.intensity;const kd=Net.on?Net.map%3:Modes.kind;if(kd==1)mazeBuild(id);else if(kd==2)shapeBuild(id)};
+ R.toneMappingExposure=[1.05,1.05,1.35,1,1,1.7][pi];World.sunI=sun.intensity;const kd=Net.on?(Net.kind===undefined?Net.map%3:Net.kind):Modes.kind;if(kd==1)mazeBuild(id);else if(kd==2)shapeBuild(id)};
 const _nm=World.name;World.name=id=>['','MAZE · ','SHAPED · '][Modes.kind]+_nm(id);
 const _ui5=ui;ui=function(){_ui5();let z=$('mzr');if(!z){z=document.createElement('div');z.className='row';z.id='mzr';$('mapr').parentNode.insertBefore(z,$('mapr'))}
  z.innerHTML=[['0','STANDARD'],['1','MAZE'],['2','SHAPED']].map(a=>'<div class="opt '+(Modes.kind==+a[0]?'sel':'')+'" data-z="'+a[0]+'">'+a[1]+'</div>').join('');z.querySelectorAll('.opt').forEach(o=>o.onclick=()=>{Modes.kind=+o.dataset.z;localStorage.kd=o.dataset.z;ui()})};
@@ -75,7 +75,7 @@ document.addEventListener('pointermove',e=>{const d=Edit.d;if(!d||e.pointerId!=d
 const eend=e=>{const d=Edit.d;if(!d||e.pointerId!=d.pid)return;Edit.d=null;if(d.moved){const p=Edit.pos();p[d.id]=[d.x/innerWidth,d.y/innerHeight];localStorage.btnpos=JSON.stringify(p)}if(d.id=='joy')d.el.style.left=d.el.style.top=d.el.style.bottom='';Edit.apply()};
 document.addEventListener('pointerup',eend);document.addEventListener('pointercancel',eend);addEventListener('resize',()=>Edit.apply());
 $('tab-set').insertAdjacentHTML('beforeend','<div class="opt" id="ebtn">CUSTOMIZE BUTTONS</div>');$('ebtn').onclick=()=>Edit.start();$('erst').onclick=()=>Edit.reset();$('edone').onclick=()=>Edit.done();
-Edit.init();World.load(Modes.map);ui();$('menu').insertAdjacentHTML('beforeend','<div style="opacity:.55;font-size:12px">tune 18</div>');
+Edit.init();World.load(Modes.map);ui();$('menu').insertAdjacentHTML('beforeend','<div style="opacity:.55;font-size:12px">tune 19</div>');
 // 5) minimap: static top-down map, drawn once per map load. It never draws players, enemies, allies or any moving marker.
 {const c=document.createElement('canvas');c.id='mm';c.width=c.height=320;c.style.cssText='position:absolute;left:18px;top:72px;width:160px;height:160px;border-radius:8px;border:1px solid rgba(255,255,255,.45);background:#0008;pointer-events:none';$('ui').insertBefore(c,$('menu'));
  const Mini={draw(id){const g=c.getContext('2d'),k=320/96;if(Maze.on&&Maze.grid){const G=Maze.G,q=Maze.cs*k;g.fillStyle='#000';g.fillRect(0,0,320,320);g.fillStyle='#9aa0a8';for(let i=0;i<G;i++)for(let j=0;j<G;j++)if(Maze.gw[i*G+j])g.fillRect((3+Maze.cs*i)*k,(3+Maze.cs*j)*k,q+.6,q+.6);boxes.forEach(b=>{if(b.y1>=5.9)return;g.fillStyle='#6b727b';g.fillRect((b.x0+48)*k,(b.z0+48)*k,Math.max(1,(b.x1-b.x0)*k),Math.max(1,(b.z1-b.z0)*k))});return}const X=x=>(x+48)*k,h=THEMES[id%10][1],s=n=>((n*.35)|0);g.clearRect(0,0,320,320);g.fillStyle='rgb('+s(h>>16&255)+','+s(h>>8&255)+','+s(h&255)+')';g.fillRect(0,0,320,320);
@@ -83,3 +83,15 @@ Edit.init();World.load(Modes.map);ui();$('menu').insertAdjacentHTML('beforeend',
   [...boxes].sort((a,b)=>a.y1-b.y1).forEach(b=>{const v=Math.min(235,95+b.y1*16)|0;g.fillStyle='rgb('+v+','+v+','+Math.min(255,v+8)+')';g.fillRect(X(b.x0),X(b.z0),Math.max(1,(b.x1-b.x0)*k),Math.max(1,(b.z1-b.z0)*k))});
   g.strokeStyle='rgba(255,255,255,.6)';g.lineWidth=2;g.strokeRect(X(-45),X(-45),90*k,90*k)}};
  const _wl3=World.load.bind(World);World.load=function(id){_wl3(id);Mini.draw(id)};Mini.draw(Modes.map)}
+
+// 6) lobby name -> map ("1" Beach I, "2" Desert I ... ; "変形1" / "迷路1" pick the map kind), default lobby "1", minimap markers for self + allies ONLY
+function roomMap(room){const s=String(room).normalize('NFKC').trim().toLowerCase();let m;const f=(n,k)=>({kind:k,id:(((+n-1)%120)+120)%120});
+ if(m=s.match(/^(変形|shape|shaped)\s*(\d+)$/))return f(m[2],2);if(m=s.match(/^(迷路|maze)\s*(\d+)$/))return f(m[2],1);if(m=s.match(/^(標準|standard)?\s*(\d+)$/))return f(m[2],0);return null}
+{const _j=Net.join.bind(Net);Net.join=function(room){_j(room);const m=roomMap(room);if(m){this.map=m.id;this.kind=m.kind}else this.kind=this.map%3}}
+if($('room').value==='lobby')$('room').value='1';
+$('room').insertAdjacentHTML('afterend','<div id="rhint" style="font-size:13px;opacity:.75"></div>');
+{const rh=()=>{const m=roomMap($('room').value);$('rhint').textContent=m?'→ '+['','MAZE · ','SHAPED · '][m.kind]+_nm(m.id):'→ RANDOM'};$('room').addEventListener('input',rh);rh()}
+{const c2=document.createElement('canvas');c2.width=c2.height=320;c2.id='mm2';c2.style.cssText='position:absolute;left:18px;top:72px;width:160px;height:160px;pointer-events:none';$('ui').insertBefore(c2,$('menu'));
+ const g=c2.getContext('2d'),k=320/96,dot=(x,z,r,ring)=>{g.beginPath();g.arc((x+48)*k,(z+48)*k,r,0,7);g.fillStyle='#2f7bff';g.fill();if(ring){g.lineWidth=2;g.strokeStyle='#fff';g.stroke()}};
+ setInterval(()=>{g.clearRect(0,0,320,320);if(!P.dead)dot(P.pos.x,P.pos.z,6,true);
+  enemies.forEach(e=>{const u=e.userData;if(u.dead)return;if(Net.on?u.ally===true:(u.team===0&&!u.remote))dot(e.position.x,e.position.z,5,false)})},100)}
