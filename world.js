@@ -60,7 +60,7 @@ const World={inst:null,wx:id=>{const v=(id/10)|0;return THEMES[id%10][0]=='Snow'
  load(id){if(!this.inst)this.init();const th=THEMES[id%10],v=(id/10)|0,r=rngS(5000+id*131),wx=World.wx(id),pr=wx=='clear'?SKY[(th[4]+v)%6]:SKY[wx=='snow'?4:3],dens=th[2]*(.7+.6*(v*7%12)/11),sea=th[0]=='Beach'||th[0]=='Harbor';
   for(const o of solid)if(o!==this.inst)S.remove(o);solid.length=0;solid.push(this.inst);boxes.length=0;N=0;NB=0;
   const u=this.su;u.top.value.setHex(pr[0]);u.hor.value.setHex(pr[1]);u.sd.value.set(...pr[2]).normalize();u.sc.value.setHex(pr[3]);
-  sun.position.copy(u.sd.value).multiplyScalar(80);sun.color.setHex(pr[3]);sun.intensity=pr[6];S.fog.color.setHex(pr[4]);S.fog.density=pr[5];Wx.set(wx);this.sunI=pr[6];
+  {const d=u.sd.value.clone();d.y=Math.max(d.y,.6);d.normalize();sun.position.copy(d).multiplyScalar(80)}sun.color.setHex(pr[3]);sun.intensity=pr[6];S.fog.color.setHex(pr[4]);S.fog.density=pr[5];Wx.set(wx);this.sunI=pr[6];
   const hm=S.children.find(o=>o.isHemisphereLight);hm.color.setHex(pr[0]);hm.groundColor.setHex(th[1]);hm.intensity=.55+pr[6]*.12;
   ground.material.color.setHex(th[1]).multiplyScalar(1.7);this.cm.forEach(m=>m.color.setHex(pr[7]));this.sea.visible=sea;
   add(0,0,-45,90,4,1,th[1]);add(0,0,45,90,4,1,th[1]);add(-45,0,0,1,4,90,th[1]);add(45,0,0,1,4,90,th[1]);
