@@ -108,4 +108,4 @@ function tick(now){requestAnimationFrame(tick);const dt=Math.min((now-T)/1000,.0
  for(let i=tracers.length-1;i>=0;i--){const t=tracers[i];t.t-=dt;if(t.l.material.opacity!==undefined&&t.l.isLine)t.l.material.opacity=Math.max(0,t.t*12);if(t.t<=0){S.remove(t.l);t.l.geometry.dispose();tracers.splice(i,1)}}
  $('score').textContent=Match.on?Match.txt():KO.on()?KO.txt():'WAVE '+P.wave+' · '+P.kills+' KILLS';$('hpf').style.width=Math.max(0,P.hp)+'%';$('hpf').style.background=P.hp<35?'#e05050':'#7bd88f';
  $('ammo').textContent=P.rel>0?'RELOADING':Wp.cur.melee?'∞':P.ammo+' / ∞';(typeof Gfx!='undefined'?Gfx.render():R.render(S,cam))}
-requestAnimationFrame(tick);
+addEventListener('load',()=>requestAnimationFrame(tick));
