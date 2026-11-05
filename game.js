@@ -18,7 +18,7 @@ sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-50,righ
 // procedural textures
 function tex(base,fn,rep){const c=document.createElement('canvas');c.width=c.height=256;const g=c.getContext('2d');g.fillStyle=base;g.fillRect(0,0,256,256);
 const d=g.getImageData(0,0,256,256);for(let i=0;i<d.data.length;i+=4){const n=(Math.random()-.5)*34;d.data[i]+=n;d.data[i+1]+=n;d.data[i+2]+=n}g.putImageData(d,0,0);fn&&fn(g);
-const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(rep,rep);t.anisotropy=8;t.encoding=THREE.sRGBEncoding;t.userData.rec=[base,fn];return t}
+const t=new THREE.CanvasTexture(c);t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(rep,rep);t.anisotropy=8;t.encoding=THREE.sRGBEncoding;t.userData={rec:[base,fn]};return t}
 const groundT=tex('#8d8472',g=>{g.strokeStyle='rgba(0,0,0,.25)';g.lineWidth=2;g.strokeRect(0,0,256,256);for(let i=0;i<40;i++){g.fillStyle='rgba(60,50,40,'+Math.random()*.15+')';g.beginPath();g.arc(Math.random()*256,Math.random()*256,Math.random()*18,0,7);g.fill()}},40);
 const brickT=tex('#9a5a43',g=>{g.strokeStyle='rgba(30,20,15,.7)';g.lineWidth=3;for(let y=0;y<256;y+=32){g.beginPath();g.moveTo(0,y);g.lineTo(256,y);g.stroke();for(let x=(y/32%2)*32;x<256;x+=64){g.beginPath();g.moveTo(x,y);g.lineTo(x,y+32);g.stroke()}}},3);
 const crateT=tex('#7a5a33',g=>{g.strokeStyle='#3b2a14';g.lineWidth=14;g.strokeRect(7,7,242,242);g.lineWidth=8;g.beginPath();g.moveTo(0,0);g.lineTo(256,256);g.stroke();for(let x=0;x<256;x+=43){g.lineWidth=2;g.beginPath();g.moveTo(x,0);g.lineTo(x,256);g.stroke()}},1);
