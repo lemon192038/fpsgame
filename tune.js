@@ -94,10 +94,10 @@ document.addEventListener('pointermove',e=>{const d=Edit.d;if(!d||e.pointerId!=d
 const eend=e=>{const d=Edit.d;if(!d||e.pointerId!=d.pid)return;Edit.d=null;if(d.moved){const p=Edit.pos();p[d.id]=[d.x/innerWidth,d.y/innerHeight];localStorage.btnpos=JSON.stringify(p)}if(d.id=='joy')d.el.style.left=d.el.style.top=d.el.style.bottom='';Edit.apply()};
 document.addEventListener('pointerup',eend);document.addEventListener('pointercancel',eend);addEventListener('resize',()=>Edit.apply());
 $('tab-set').insertAdjacentHTML('beforeend','<div class="opt" id="ebtn">CUSTOMIZE BUTTONS</div>');$('ebtn').onclick=()=>Edit.start();$('erst').onclick=()=>Edit.reset();$('edone').onclick=()=>Edit.done();
-Edit.init();World.load(Modes.map);ui();$('menu').insertAdjacentHTML('beforeend','<div style="opacity:.55;font-size:12px">tune 20</div>');
+Edit.init();World.load(Modes.map);ui();$('menu').insertAdjacentHTML('beforeend','<div style="opacity:.55;font-size:12px">tune 21</div>');
 // 5) minimap: static top-down map, drawn once per map load. It never draws players, enemies, allies or any moving marker.
-{const c=document.createElement('canvas');c.id='mm';c.width=c.height=320;c.style.cssText='position:absolute;left:18px;top:72px;width:160px;height:160px;border-radius:8px;border:1px solid rgba(255,255,255,.45);background:#0008;pointer-events:none';$('ui').insertBefore(c,$('menu'));
- const Mini={draw(id){const g=c.getContext('2d'),k=320/96;if(Maze.on&&Maze.grid){const G=Maze.G,q=Maze.cs*k;g.fillStyle='#000';g.fillRect(0,0,320,320);g.fillStyle='#9aa0a8';for(let i=0;i<G;i++)for(let j=0;j<G;j++)if(Maze.gw[i*G+j])g.fillRect((3+Maze.cs*i)*k,(3+Maze.cs*j)*k,q+.6,q+.6);boxes.forEach(b=>{if(b.y1>=5.9)return;g.fillStyle='#6b727b';g.fillRect((b.x0+48)*k,(b.z0+48)*k,Math.max(1,(b.x1-b.x0)*k),Math.max(1,(b.z1-b.z0)*k))});return}const X=x=>(x+48)*k,h=THEMES[id%10][1],s=n=>((n*.35)|0);g.clearRect(0,0,320,320);g.fillStyle='rgb('+s(h>>16&255)+','+s(h>>8&255)+','+s(h&255)+')';g.fillRect(0,0,320,320);
+{const c=document.createElement('canvas');c.id='mm';c.width=c.height=640;c.style.cssText='position:absolute;left:18px;top:72px;width:160px;height:160px;border-radius:8px;border:1px solid rgba(255,255,255,.45);background:#0008;pointer-events:none';$('ui').insertBefore(c,$('menu'));
+ const Mini={draw(id){const g=c.getContext('2d'),k=640/96;if(Maze.on&&Maze.grid){const G=Maze.G,q=Maze.cs*k;g.fillStyle='#000';g.fillRect(0,0,640,640);g.fillStyle='#9aa0a8';for(let i=0;i<G;i++)for(let j=0;j<G;j++)if(Maze.gw[i*G+j])g.fillRect((3+Maze.cs*i)*k,(3+Maze.cs*j)*k,q+.6,q+.6);boxes.forEach(b=>{if(b.y1>=5.9)return;g.fillStyle='#6b727b';g.fillRect((b.x0+48)*k,(b.z0+48)*k,Math.max(1,(b.x1-b.x0)*k),Math.max(1,(b.z1-b.z0)*k))});return}const X=x=>(x+48)*k,h=THEMES[id%10][1],s=n=>((n*.35)|0);g.clearRect(0,0,640,640);g.fillStyle='rgb('+s(h>>16&255)+','+s(h>>8&255)+','+s(h&255)+')';g.fillRect(0,0,640,640);
   if(World.sea.visible){g.fillStyle='rgba(42,127,184,.7)';g.fillRect(X(26),X(-45),X(45)-X(26),X(45)-X(-45))}
   [...boxes].sort((a,b)=>a.y1-b.y1).forEach(b=>{const v=Math.min(235,95+b.y1*16)|0;g.fillStyle='rgb('+v+','+v+','+Math.min(255,v+8)+')';g.fillRect(X(b.x0),X(b.z0),Math.max(1,(b.x1-b.x0)*k),Math.max(1,(b.z1-b.z0)*k))});
   g.strokeStyle='rgba(255,255,255,.6)';g.lineWidth=2;g.strokeRect(X(-45),X(-45),90*k,90*k)}};
@@ -114,3 +114,12 @@ $('room').insertAdjacentHTML('afterend','<div id="rhint" style="font-size:13px;o
  const g=c2.getContext('2d'),k=320/96,dot=(x,z,r,ring)=>{g.beginPath();g.arc((x+48)*k,(z+48)*k,r,0,7);g.fillStyle='#2f7bff';g.fill();if(ring){g.lineWidth=2;g.strokeStyle='#fff';g.stroke()}};
  setInterval(()=>{g.clearRect(0,0,320,320);if(!P.dead)dot(P.pos.x,P.pos.z,6,true);
   enemies.forEach(e=>{const u=e.userData;if(u.dead)return;if(Net.on?u.ally===true:(u.team===0&&!u.remote))dot(e.position.x,e.position.z,5,false)})},100)}
+
+// 7) CHECK MAP buttons (CPU / online): load the map that would be played, show the minimap enlarged (static terrain only, no markers)
+$('ui').insertAdjacentHTML('beforeend','<div id="mapov" style="display:none;position:absolute;inset:0;background:rgba(5,8,12,.96);flex-direction:column;align-items:center;justify-content:center;gap:12px"><div id="mapttl" style="font-weight:700;font-size:18px"></div><canvas id="mapbig" width="960" height="960" style="width:min(78vw,72vh);height:min(78vw,72vh);border:1px solid rgba(255,255,255,.4);border-radius:8px;background:#000"></canvas><div class="opt go" id="mapx">CLOSE</div></div>');
+function showMap(kind,id){const k0=Modes.kind;Modes.kind=kind;World.load(id);Modes.kind=k0;const g=$('mapbig').getContext('2d');g.fillStyle='#000';g.fillRect(0,0,960,960);g.imageSmoothingEnabled=true;g.drawImage($('mm'),0,0,960,960);
+ $('mapttl').textContent=['','MAZE · ','SHAPED · '][kind]+_nm(id)+' · '+(id+1)+'/120';$('mapov').style.display='flex'}
+$('pcpu').parentNode.insertAdjacentHTML('afterend','<div class="row"><div class="opt" id="mapcpu">CHECK MAP · CPU</div><div class="opt" id="maponl">CHECK MAP · ONLINE</div></div>');
+$('mapcpu').onclick=()=>showMap(Modes.kind,Modes.map);
+$('maponl').onclick=()=>{const room=$('room').value,m=roomMap(room);if(m)showMap(m.kind,m.id);else{const h=([...room].reduce((a,c)=>(a*31+c.charCodeAt(0))>>>0,7))%NM;showMap(h%3,h)}};
+$('mapov').addEventListener('pointerdown',e=>{e.stopPropagation();$('mapov').style.display='none'});
