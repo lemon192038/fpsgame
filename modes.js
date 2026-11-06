@@ -14,7 +14,7 @@ const Modes={mode:'1v1',lv:'Normal',stats:{k:0,d:0,m:0},wave:1,
   else{const m=this.mode,at=(t,n,z)=>{for(let i=0;i<n;i++)Bots.mk(t,(i-(n-1)/2)*8,z)};this.stats.m++;Auth.save();
    if(m=='1v1'||m=='ko1'){P.pos.set(0,1.7,36);at(1,1,-36)}
    else if(m=='5v5'||m=='ko5'){P.pos.set(0,1.7,36);at(0,4,38);at(1,5,-36)}
-   else if(m=='ffa'){P.pos.set(0,1.7,36);[[-34,-34],[34,-34],[-34,0],[34,0]].forEach((p,i)=>Bots.mk(i+1,p[0],p[1]))}
+   else if(m=='ffa'){P.pos.set(0,1.7,36);(Maze.on&&Maze.sp||[[-34,-34],[34,-34],[-34,0],[34,0]]).forEach((p,i)=>Bots.mk(i+1,p[0],p[1]))}
    else{P.pos.set(0,1.7,20);Bots.horde()}}
   P.yaw=0;P.pitch=0;$('msg').style.display='none';$('menu').style.display='none';P.on=true}};
 const Bots={
@@ -28,7 +28,7 @@ const Bots={
   if(name){const c=document.createElement('canvas');c.width=256;c.height=48;const g=c.getContext('2d');g.font='bold 32px sans-serif';g.textAlign='center';g.fillStyle='#fff';g.strokeStyle='#000';g.lineWidth=5;g.strokeText(name,128,36);g.fillText(name,128,36);
    const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),depthTest:true,fog:false}));sp.scale.set(1.6,.3,1);sp.position.y=2.3;e.add(sp)}
   S.add(e);enemies.push(e);return e},
- horde(){for(let i=0;i<2+Modes.wave*2;i++){const a=rnd()*6.28;Bots.mk(1,Math.cos(a)*38,Math.sin(a)*38)}},
+ horde(){for(let i=0;i<2+Modes.wave*2;i++){const a=rnd()*6.28,q=Maze.on&&Maze.grid?Maze.far():[Math.cos(a)*38,Math.sin(a)*38];Bots.mk(1,q[0],q[1])}},
  banner(){const k=$('kill');k.classList.remove('show');void k.offsetWidth;k.classList.add('show');snd(700,.25,.2,'triangle')},
  kill(e,byPlayer){e.userData.dead=.001;if(byPlayer){P.kills++;Modes.stats.k++;Auth.save();Bots.banner()}},
  update(dt,now){const D=Modes.D,live=enemies.filter(e=>!e.userData.dead);

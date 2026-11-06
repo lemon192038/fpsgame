@@ -21,4 +21,4 @@ const _ui3=ui;ui=function(){_ui3();$('langr').innerHTML=[['ja','日本語'],['zh
 document.documentElement.lang=LANG;ui();walk($('ui'));
 if(!window.BUILD||BUILD<11||!window.GX||!window.MV||MV<10||!window.W3||!window.W2||W2<10||!$('jz'))$('menu').insertAdjacentHTML('afterbegin','<div style="background:#a33;padding:8px 12px;border-radius:8px">ファイルが古い可能性があります。index.html と game.js を再アップロードしてください</div>');
 $('menu').insertAdjacentHTML('beforeend','<div style="opacity:.55;font-size:12px">game '+window.BUILD+' / modes '+window.MV+' / world '+window.W2+' / gfx '+window.GX+'</div>');
-{const s=document.createElement('script');s.src='tune.js?v=19';document.body.appendChild(s)}
+{const s=document.createElement('script');s.src='tune.js?v=20';document.body.appendChild(s)}
